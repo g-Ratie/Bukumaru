@@ -21,9 +21,14 @@ import type { Novel } from "@/types/novel";
 interface NovelDetailProps {
 	novel: Novel;
 	onClose: () => void;
+	onAuthorSearch: (authorName: string) => void;
 }
 
-export function NovelDetail({ novel, onClose }: NovelDetailProps) {
+export function NovelDetail({
+	novel,
+	onClose,
+	onAuthorSearch,
+}: NovelDetailProps) {
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("ja-JP", {
 			year: "numeric",
@@ -70,7 +75,14 @@ export function NovelDetail({ novel, onClose }: NovelDetailProps) {
 							<CardContent className="space-y-3">
 								<div className="flex justify-between">
 									<span className="text-gray-600">作者</span>
-									<span className="font-medium">{novel.userName}</span>
+									<Button
+										variant="link"
+										size="sm"
+										className="h-auto p-0 font-medium text-blue-600 hover:text-blue-800"
+										onClick={() => onAuthorSearch(novel.userName)}
+									>
+										{novel.userName}
+									</Button>
 								</div>
 								<div className="flex justify-between">
 									<span className="text-gray-600">文字数</span>

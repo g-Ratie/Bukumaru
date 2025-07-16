@@ -9,9 +9,14 @@ import type { Novel } from "@/types/novel";
 interface SearchResultsProps {
 	novels: Novel[];
 	onNovelSelect: (novel: Novel) => void;
+	onAuthorSearch: (authorName: string) => void;
 }
 
-export function SearchResults({ novels, onNovelSelect }: SearchResultsProps) {
+export function SearchResults({
+	novels,
+	onNovelSelect,
+	onAuthorSearch,
+}: SearchResultsProps) {
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("ja-JP");
 	};
@@ -54,7 +59,20 @@ export function SearchResults({ novels, onNovelSelect }: SearchResultsProps) {
 								{novel.title}
 							</CardTitle>
 							<div className="flex items-center gap-4 text-gray-600 text-sm">
-								<span>by {novel.userName}</span>
+								<span>
+									by
+									<Button
+										variant="link"
+										size="sm"
+										className="ml-1 h-auto p-0 text-blue-600 hover:text-blue-800"
+										onClick={(e) => {
+											e.stopPropagation();
+											onAuthorSearch(novel.userName);
+										}}
+									>
+										{novel.userName}
+									</Button>
+								</span>
 								<span>{formatDate(novel.createDate)}</span>
 							</div>
 						</CardHeader>

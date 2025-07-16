@@ -61,6 +61,14 @@ export function NovelSearchPage() {
 		setSelectedNovel(null);
 	};
 
+	const handleAuthorSearch = (authorName: string) => {
+		setFilters((prev) => ({
+			...prev,
+			authorName,
+		}));
+		setSelectedNovel(null);
+	};
+
 	return (
 		<div className="min-h-screen bg-gray-50">
 			<div className="container mx-auto px-4 py-8">
@@ -81,6 +89,7 @@ export function NovelSearchPage() {
 						<SearchResults
 							novels={filteredNovels}
 							onNovelSelect={handleNovelSelect}
+							onAuthorSearch={handleAuthorSearch}
 						/>
 					</div>
 				) : (
@@ -97,13 +106,18 @@ export function NovelSearchPage() {
 							<SearchResults
 								novels={filteredNovels}
 								onNovelSelect={handleNovelSelect}
+								onAuthorSearch={handleAuthorSearch}
 							/>
 						</div>
 					</div>
 				)}
 
 				{selectedNovel && (
-					<NovelDetail novel={selectedNovel} onClose={handleNovelClose} />
+					<NovelDetail
+						novel={selectedNovel}
+						onClose={handleNovelClose}
+						onAuthorSearch={handleAuthorSearch}
+					/>
 				)}
 			</div>
 		</div>
