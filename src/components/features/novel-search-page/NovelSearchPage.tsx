@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { loadNovelData } from "@/lib/novelDataParser";
 import { filterNovels } from "@/lib/novelSearchFilters";
 import type { Novel } from "@/types/novel";
 import type { SearchFilters } from "@/types/search";
 import { NovelDetail } from "./novel-detail/NovelDetail";
+import { CollapsibleSearchForm } from "./search-form/CollapsibleSearchForm";
 import { SearchForm } from "./search-form/SearchForm";
 import { SearchResults } from "./search-results/SearchResults";
 
@@ -13,6 +15,7 @@ export function NovelSearchPage() {
 	const [novels, setNovels] = useState<Novel[]>([]);
 	const [filteredNovels, setFilteredNovels] = useState<Novel[]>([]);
 	const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
+	const isMobile = useMediaQuery("(max-width: 768px)");
 	const [filters, setFilters] = useState<SearchFilters>({
 		authorName: "",
 		tags: [],
@@ -68,22 +71,36 @@ export function NovelSearchPage() {
 					<p className="text-gray-600">pixiv小説データから作品を検索できます</p>
 				</header>
 
-				<div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-					<div className="lg:col-span-1">
-						<SearchForm
+				{isMobile ? (
+					<div className="space-y-4">
+						<CollapsibleSearchForm
 							filters={filters}
 							onFilterChange={handleFilterChange}
 							novels={novels}
 						/>
-					</div>
-
-					<div className="lg:col-span-3">
 						<SearchResults
 							novels={filteredNovels}
 							onNovelSelect={handleNovelSelect}
 						/>
 					</div>
-				</div>
+				) : (
+					<div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+						<div className="lg:col-span-1">
+							<SearchForm
+								filters={filters}
+								onFilterChange={handleFilterChange}
+								novels={novels}
+							/>
+						</div>
+
+						<div className="lg:col-span-3">
+							<SearchResults
+								novels={filteredNovels}
+								onNovelSelect={handleNovelSelect}
+							/>
+						</div>
+					</div>
+				)}
 
 				{selectedNovel && (
 					<NovelDetail novel={selectedNovel} onClose={handleNovelClose} />

@@ -97,9 +97,9 @@ export function SearchForm({
 	};
 
 	return (
-		<div className="space-y-6 rounded-lg bg-white p-6 shadow-md">
+		<div className="space-y-6 rounded-lg bg-white p-4 shadow-md sm:p-6">
 			<div className="flex items-center justify-between">
-				<h2 className="font-semibold text-xl">検索フィルター</h2>
+				<h2 className="font-semibold text-lg sm:text-xl">検索フィルター</h2>
 				<Button variant="outline" size="sm" onClick={handleReset}>
 					リセット
 				</Button>
@@ -207,10 +207,11 @@ export function SearchForm({
 						onChange={(e) => handleTextCountChange("max", e.target.value)}
 					/>
 				</div>
-				<div className="flex flex-wrap gap-2">
+				<div className="flex flex-wrap gap-1 sm:gap-2">
 					<Button
 						variant="outline"
 						size="sm"
+						className="text-xs sm:text-sm"
 						onClick={() =>
 							onFilterChange({
 								...filters,
@@ -224,6 +225,7 @@ export function SearchForm({
 					<Button
 						variant="outline"
 						size="sm"
+						className="text-xs sm:text-sm"
 						onClick={() =>
 							onFilterChange({
 								...filters,
@@ -237,6 +239,7 @@ export function SearchForm({
 					<Button
 						variant="outline"
 						size="sm"
+						className="text-xs sm:text-sm"
 						onClick={() =>
 							onFilterChange({
 								...filters,
