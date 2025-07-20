@@ -93,6 +93,8 @@ export function SearchForm({
 			maxTextCount: 50000,
 			sortBy: "createDate",
 			sortOrder: "desc",
+			currentPage: 1,
+			itemsPerPage: 24,
 		});
 	};
 
@@ -108,46 +110,93 @@ export function SearchForm({
 			{/* 作者検索 */}
 			<div className="space-y-2">
 				<Label htmlFor={authorId}>作者名</Label>
-				<Input
-					id={authorId}
-					placeholder="作者名を入力"
-					value={authorInput}
-					onChange={(e) => handleAuthorChange(e.target.value)}
-				/>
-				{authorInput && (
-					<div className="max-h-32 overflow-y-auto">
-						{allAuthors
-							.filter((author) =>
-								author.userName
-									.toLowerCase()
-									.includes(authorInput.toLowerCase()),
-							)
-							.slice(0, 10)
-							.map((author) => (
-								<button
-									key={author.userName}
-									type="button"
-									className="block w-full cursor-pointer rounded p-1 text-left text-gray-600 text-sm hover:bg-gray-100"
-									onClick={() => handleAuthorChange(author.userName)}
-								>
-									{author.userName} ({author.count}作品)
-								</button>
-							))}
-					</div>
-				)}
+				<div className="relative">
+					<Input
+						id={authorId}
+						placeholder="作者名を入力"
+						value={authorInput}
+						onChange={(e) => handleAuthorChange(e.target.value)}
+					/>
+					{authorInput && (
+						<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg">
+							{allAuthors
+								.filter((author) =>
+									author.userName
+										.toLowerCase()
+										.includes(authorInput.toLowerCase()),
+								)
+								.slice(0, 10)
+								.map((author) => (
+									<button
+										key={author.userName}
+										type="button"
+										className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100"
+										onClick={() => handleAuthorChange(author.userName)}
+										onTouchStart={(e) => {
+											e.preventDefault();
+											handleAuthorChange(author.userName);
+										}}
+									>
+										{author.userName} ({author.count}作品)
+									</button>
+								))}
+						</div>
+					)}
+				</div>
 			</div>
 
 			{/* タグ検索 */}
 			<div className="space-y-2">
 				<Label htmlFor={tagsId}>タグ</Label>
 				<div className="flex gap-2">
-					<Input
-						id={tagsId}
-						placeholder="タグを入力"
-						value={tagInput}
-						onChange={(e) => setTagInput(e.target.value)}
-						onKeyPress={(e) => e.key === "Enter" && handleTagAdd()}
-					/>
+					<div className="relative flex-1">
+						<Input
+							id={tagsId}
+							placeholder="タグを入力"
+							value={tagInput}
+							onChange={(e) => setTagInput(e.target.value)}
+							onKeyDown={(e) => e.key === "Enter" && handleTagAdd()}
+						/>
+						{tagInput && (
+							<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg">
+								{allTags
+									.filter((tagSuggestion) =>
+										tagSuggestion.tag
+											.toLowerCase()
+											.includes(tagInput.toLowerCase()),
+									)
+									.slice(0, 10)
+									.map((tagSuggestion) => (
+										<button
+											key={tagSuggestion.tag}
+											type="button"
+											className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100"
+											onClick={() => {
+												if (!filters.tags.includes(tagSuggestion.tag)) {
+													onFilterChange({
+														...filters,
+														tags: [...filters.tags, tagSuggestion.tag],
+													});
+												}
+												setTagInput("");
+											}}
+											onTouchStart={(e) => {
+												e.preventDefault();
+												if (!filters.tags.includes(tagSuggestion.tag)) {
+													onFilterChange({
+														...filters,
+														tags: [...filters.tags, tagSuggestion.tag],
+													});
+												}
+												setTagInput("");
+											}}
+										>
+											{tagSuggestion.tag} ({tagSuggestion.count})
+										</button>
+									))}
+							</div>
+						)}
+					</div>
 					<Button onClick={handleTagAdd}>追加</Button>
 				</div>
 				{filters.tags.length > 0 && (
