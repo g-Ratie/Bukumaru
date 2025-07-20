@@ -6,6 +6,8 @@ export interface SearchFilters {
 	maxTextCount: number;
 	sortBy: "title" | "userName" | "textCount" | "bookmarkCount" | "createDate";
 	sortOrder: "asc" | "desc";
+	currentPage: number;
+	itemsPerPage: number;
 }
 
 export interface SearchResult {

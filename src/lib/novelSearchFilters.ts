@@ -1,5 +1,5 @@
 import type { Novel } from "@/types/novel";
-import type { SearchFilters } from "@/types/search";
+import type { SearchFilters, SearchResult } from "@/types/search";
 
 export function filterNovels(novels: Novel[], filters: SearchFilters): Novel[] {
 	const filtered = novels.filter((novel) => {
@@ -18,6 +18,25 @@ export function filterNovels(novels: Novel[], filters: SearchFilters): Novel[] {
 	});
 
 	return sortNovels(filtered, filters.sortBy, filters.sortOrder);
+}
+
+export function filterNovelsWithPagination(
+	novels: Novel[],
+	filters: SearchFilters,
+): SearchResult {
+	const filtered = filterNovels(novels, filters);
+	const totalCount = filtered.length;
+	const totalPages = Math.ceil(totalCount / filters.itemsPerPage);
+	const startIndex = (filters.currentPage - 1) * filters.itemsPerPage;
+	const endIndex = startIndex + filters.itemsPerPage;
+	const paginatedNovels = filtered.slice(startIndex, endIndex);
+
+	return {
+		novels: paginatedNovels,
+		totalCount,
+		currentPage: filters.currentPage,
+		totalPages,
+	};
 }
 
 export function filterByAuthor(novel: Novel, authorName: string): boolean {

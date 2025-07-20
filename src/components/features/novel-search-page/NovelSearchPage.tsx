@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { loadNovelData } from "@/lib/novelDataParser";
-import { filterNovels } from "@/lib/novelSearchFilters";
+import { filterNovelsWithPagination } from "@/lib/novelSearchFilters";
 import type { Novel } from "@/types/novel";
-import type { SearchFilters } from "@/types/search";
+import type { SearchFilters, SearchResult } from "@/types/search";
 import { NovelDetail } from "./novel-detail/NovelDetail";
 import { CollapsibleSearchForm } from "./search-form/CollapsibleSearchForm";
 import { SearchForm } from "./search-form/SearchForm";
@@ -13,7 +13,12 @@ import { SearchResults } from "./search-results/SearchResults";
 
 export function NovelSearchPage() {
 	const [novels, setNovels] = useState<Novel[]>([]);
-	const [filteredNovels, setFilteredNovels] = useState<Novel[]>([]);
+	const [searchResult, setSearchResult] = useState<SearchResult>({
+		novels: [],
+		totalCount: 0,
+		currentPage: 1,
+		totalPages: 1,
+	});
 	const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
 	const isMobile = useMediaQuery("(max-width: 768px)");
 	const [filters, setFilters] = useState<SearchFilters>({
@@ -24,6 +29,8 @@ export function NovelSearchPage() {
 		maxTextCount: 50000,
 		sortBy: "createDate",
 		sortOrder: "desc",
+		currentPage: 1,
+		itemsPerPage: 24,
 	});
 
 	const loadNovels = useCallback(async () => {
@@ -37,8 +44,8 @@ export function NovelSearchPage() {
 	}, []);
 
 	const filterNovelsCallback = useCallback(() => {
-		const filtered = filterNovels(novels, filters);
-		setFilteredNovels(filtered);
+		const result = filterNovelsWithPagination(novels, filters);
+		setSearchResult(result);
 	}, [novels, filters]);
 
 	useEffect(() => {
@@ -50,7 +57,10 @@ export function NovelSearchPage() {
 	}, [filterNovelsCallback]);
 
 	const handleFilterChange = (newFilters: SearchFilters) => {
-		setFilters(newFilters);
+		setFilters({
+			...newFilters,
+			currentPage: 1,
+		});
 	};
 
 	const handleNovelSelect = (novel: Novel) => {
@@ -65,8 +75,16 @@ export function NovelSearchPage() {
 		setFilters((prev) => ({
 			...prev,
 			authorName,
+			currentPage: 1,
 		}));
 		setSelectedNovel(null);
+	};
+
+	const handlePageChange = (page: number) => {
+		setFilters((prev) => ({
+			...prev,
+			currentPage: page,
+		}));
 	};
 
 	return (
@@ -87,9 +105,10 @@ export function NovelSearchPage() {
 							novels={novels}
 						/>
 						<SearchResults
-							novels={filteredNovels}
+							searchResult={searchResult}
 							onNovelSelect={handleNovelSelect}
 							onAuthorSearch={handleAuthorSearch}
+							onPageChange={handlePageChange}
 						/>
 					</div>
 				) : (
@@ -104,9 +123,10 @@ export function NovelSearchPage() {
 
 						<div className="lg:col-span-3">
 							<SearchResults
-								novels={filteredNovels}
+								searchResult={searchResult}
 								onNovelSelect={handleNovelSelect}
 								onAuthorSearch={handleAuthorSearch}
+								onPageChange={handlePageChange}
 							/>
 						</div>
 					</div>

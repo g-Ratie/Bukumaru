@@ -1,21 +1,25 @@
 "use client";
 
 import { BookmarkIcon, ClockIcon, EyeIcon } from "lucide-react";
+import { Pagination } from "@/components/shared/pagination/Pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Novel } from "@/types/novel";
+import type { SearchResult } from "@/types/search";
 
 interface SearchResultsProps {
-	novels: Novel[];
+	searchResult: SearchResult;
 	onNovelSelect: (novel: Novel) => void;
 	onAuthorSearch: (authorName: string) => void;
+	onPageChange: (page: number) => void;
 }
 
 export function SearchResults({
-	novels,
+	searchResult,
 	onNovelSelect,
 	onAuthorSearch,
+	onPageChange,
 }: SearchResultsProps) {
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("ja-JP");
@@ -31,6 +35,8 @@ export function SearchResults({
 		return `${text.substring(0, maxLength)}...`;
 	};
 
+	const { novels, totalCount, currentPage, totalPages } = searchResult;
+
 	if (novels.length === 0) {
 		return (
 			<div className="py-12 text-center">
@@ -44,8 +50,11 @@ export function SearchResults({
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
 				<h2 className="font-semibold text-xl">
-					検索結果 ({novels.length.toLocaleString()}件)
+					検索結果 ({totalCount.toLocaleString()}件)
 				</h2>
+				<div className="text-gray-600 text-sm">
+					{currentPage}/{totalPages}ページ
+				</div>
 			</div>
 
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -122,6 +131,13 @@ export function SearchResults({
 					</Card>
 				))}
 			</div>
+
+			<Pagination
+				currentPage={currentPage}
+				totalPages={totalPages}
+				onPageChange={onPageChange}
+				className="mt-8"
+			/>
 		</div>
 	);
 }
