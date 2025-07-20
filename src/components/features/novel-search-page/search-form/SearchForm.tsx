@@ -61,7 +61,7 @@ export function SearchForm({
 		});
 	};
 
-	const handleSelectedTagChange = (tag: string) => {
+	const _handleSelectedTagChange = (tag: string) => {
 		onFilterChange({ ...filters, selectedTag: tag === "ALL" ? "" : tag });
 	};
 
@@ -216,27 +216,6 @@ export function SearchForm({
 						))}
 					</div>
 				)}
-			</div>
-
-			{/* 単一タグ選択 */}
-			<div className="space-y-2">
-				<Label htmlFor="selectedTag">単一タグ指定</Label>
-				<Select
-					value={filters.selectedTag || "ALL"}
-					onValueChange={handleSelectedTagChange}
-				>
-					<SelectTrigger>
-						<SelectValue placeholder="タグを選択" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="ALL">すべて</SelectItem>
-						{allTags.slice(0, 50).map(({ tag, count }) => (
-							<SelectItem key={tag} value={tag}>
-								{tag} ({count})
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
 			</div>
 
 			{/* 文字数絞り込み */}

@@ -36,74 +36,89 @@ export function NovelCard({
 	};
 
 	return (
-		<Card className="transition-shadow hover:shadow-lg">
-			<CardHeader className="pb-3">
-				<CardTitle className="line-clamp-2 text-lg">
+		<Card className="flex h-80 flex-col overflow-hidden transition-shadow hover:shadow-lg">
+			<CardHeader className="shrink-0 pb-3">
+				<CardTitle className="line-clamp-2 h-14 overflow-hidden text-lg">
 					<a
 						href={getPixivUrl(novel.id)}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline"
+						className="cursor-pointer text-gray-900 hover:text-blue-800 hover:underline"
 						onClick={(e) => e.stopPropagation()}
 					>
 						{novel.title}
 					</a>
 				</CardTitle>
-				<div className="flex items-center gap-4 text-gray-600 text-sm">
-					<span>
+				<div className="flex items-center gap-2 text-gray-500 text-sm">
+					<span className="min-w-0 flex-1 truncate">
 						by
 						<Button
 							variant="link"
 							size="sm"
-							className="ml-1 h-auto p-0 text-blue-600 hover:text-blue-800"
+							className="ml-1 h-auto p-0 text-gray-800 hover:text-blue-800"
 							onClick={(e) => {
 								e.stopPropagation();
 								onAuthorSearch(novel.userName);
 							}}
 						>
-							{novel.userName}
+							<span className="truncate">{novel.userName}</span>
 						</Button>
 					</span>
-					<span>{formatDate(novel.createDate)}</span>
+					<span className="shrink-0 text-xs">
+						{formatDate(novel.createDate)}
+					</span>
 				</div>
 			</CardHeader>
 
-			<CardContent className="space-y-3">
-				<div className="line-clamp-3 text-gray-700 text-sm">
+			<CardContent className="flex min-h-0 flex-1 flex-col space-y-3 overflow-hidden">
+				<div className="line-clamp-3 h-16 overflow-hidden text-gray-700 text-sm">
 					{truncateText(novel.description, 100)}
 				</div>
 
-				<div className="flex flex-wrap gap-1">
+				<div className="flex h-6 min-w-0 flex-wrap gap-1 overflow-hidden">
 					{novel.tags.slice(0, 3).map((tag) => (
-						<Badge key={tag} variant="secondary" className="text-xs">
+						<Badge
+							key={tag}
+							variant="secondary"
+							className="max-w-20 truncate text-xs"
+						>
 							{tag}
 						</Badge>
 					))}
 					{novel.tags.length > 3 && (
-						<Badge variant="outline" className="text-xs">
+						<Badge variant="outline" className="shrink-0 text-xs">
 							+{novel.tags.length - 3}
 						</Badge>
 					)}
 				</div>
 
 				<div className="flex items-center justify-between text-gray-500 text-sm">
-					<div className="flex items-center gap-3">
+					<div className="flex min-w-0 items-center gap-2">
 						<span className="flex items-center gap-1">
 							<EyeIcon size={14} />
-							{novel.textCount.toLocaleString()}字
+							<span className="text-xs">
+								{novel.textCount.toLocaleString()}字
+							</span>
 						</span>
 						<span className="flex items-center gap-1">
 							<ClockIcon size={14} />
-							{formatReadingTime(novel.readingTime)}
+							<span className="text-xs">
+								{formatReadingTime(novel.readingTime)}
+							</span>
 						</span>
 						<span className="flex items-center gap-1">
 							<BookmarkIcon size={14} />
-							{novel.bookmarkCount.toLocaleString()}
+							<span className="text-xs">
+								{novel.bookmarkCount.toLocaleString()}
+							</span>
 						</span>
 					</div>
 				</div>
 
-				<Button className="mt-3 w-full" onClick={() => onNovelSelect(novel)}>
+				<Button
+					className="mt-auto w-full shrink-0"
+					onClick={() => onNovelSelect(novel)}
+				>
 					詳細を見る
 				</Button>
 			</CardContent>
