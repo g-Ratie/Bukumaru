@@ -31,11 +31,23 @@ export function NovelCard({
 		return `${text.substring(0, maxLength)}...`;
 	};
 
+	const getPixivUrl = (id: string) => {
+		return `https://www.pixiv.net/novel/show.php?id=${id}`;
+	};
+
 	return (
-		<Card className="cursor-pointer transition-shadow hover:shadow-lg">
+		<Card className="transition-shadow hover:shadow-lg">
 			<CardHeader className="pb-3">
-				<CardTitle className="line-clamp-2 text-lg hover:text-blue-600">
-					{novel.title}
+				<CardTitle className="line-clamp-2 text-lg">
+					<a
+						href={getPixivUrl(novel.id)}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline"
+						onClick={(e) => e.stopPropagation()}
+					>
+						{novel.title}
+					</a>
 				</CardTitle>
 				<div className="flex items-center gap-4 text-gray-600 text-sm">
 					<span>
