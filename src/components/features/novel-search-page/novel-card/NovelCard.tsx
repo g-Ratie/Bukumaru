@@ -36,9 +36,9 @@ export function NovelCard({
 	};
 
 	return (
-		<Card className="flex h-80 flex-col overflow-hidden transition-shadow hover:shadow-lg">
+		<Card className="flex flex-col transition-shadow hover:shadow-lg">
 			<CardHeader className="shrink-0 pb-3">
-				<CardTitle className="line-clamp-2 h-14 overflow-hidden text-lg">
+				<CardTitle className="mb-2 line-clamp-2 min-h-[3.5rem] text-lg">
 					<a
 						href={getPixivUrl(novel.id)}
 						target="_blank"
@@ -70,30 +70,21 @@ export function NovelCard({
 				</div>
 			</CardHeader>
 
-			<CardContent className="flex min-h-0 flex-1 flex-col space-y-3 overflow-hidden">
-				<div className="line-clamp-3 h-16 overflow-hidden text-gray-700 text-sm">
+			<CardContent className="flex flex-1 flex-col space-y-4">
+				<div className="line-clamp-3 min-h-[3rem] text-gray-700 text-sm">
 					{truncateText(novel.description, 100)}
 				</div>
 
-				<div className="flex h-6 min-w-0 flex-wrap gap-1 overflow-hidden">
-					{novel.tags.slice(0, 3).map((tag) => (
-						<Badge
-							key={tag}
-							variant="secondary"
-							className="max-w-20 truncate text-xs"
-						>
+				<div className="flex flex-wrap gap-1">
+					{novel.tags.map((tag) => (
+						<Badge key={tag} variant="secondary" className="text-xs">
 							{tag}
 						</Badge>
 					))}
-					{novel.tags.length > 3 && (
-						<Badge variant="outline" className="shrink-0 text-xs">
-							+{novel.tags.length - 3}
-						</Badge>
-					)}
 				</div>
 
 				<div className="flex items-center justify-between text-gray-500 text-sm">
-					<div className="flex min-w-0 items-center gap-2">
+					<div className="flex items-center gap-2">
 						<span className="flex items-center gap-1">
 							<EyeIcon size={14} />
 							<span className="text-xs">
@@ -115,10 +106,7 @@ export function NovelCard({
 					</div>
 				</div>
 
-				<Button
-					className="mt-auto w-full shrink-0"
-					onClick={() => onNovelSelect(novel)}
-				>
+				<Button className="mt-auto w-full" onClick={() => onNovelSelect(novel)}>
 					詳細を見る
 				</Button>
 			</CardContent>
