@@ -38,7 +38,7 @@ export function NovelCard({
 	return (
 		<Card className="flex flex-col transition-shadow hover:shadow-lg">
 			<CardHeader className="shrink-0 pb-3">
-				<CardTitle className="mb-2 line-clamp-2 min-h-[3.5rem] text-lg">
+				<CardTitle className="mb-2 line-clamp-2 min-h-[1.5rem] text-lg">
 					<a
 						href={getPixivUrl(novel.id)}
 						target="_blank"

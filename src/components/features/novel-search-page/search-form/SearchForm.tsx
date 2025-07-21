@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,11 @@ export function SearchForm({
 	const allTags = useMemo(() => getTagSuggestions(novels), [novels]);
 	const allAuthors = useMemo(() => getAuthorSuggestions(novels), [novels]);
 
+	// フィルターが外部から変更されたときにauthorInputを同期
+	useEffect(() => {
+		setAuthorInput(filters.authorName);
+	}, [filters.authorName]);
+
 	const handleAuthorChange = (value: string) => {
 		setAuthorInput(value);
 		onFilterChange({ ...filters, authorName: value });
@@ -59,10 +64,6 @@ export function SearchForm({
 			...filters,
 			tags: filters.tags.filter((tag) => tag !== tagToRemove),
 		});
-	};
-
-	const _handleSelectedTagChange = (tag: string) => {
-		onFilterChange({ ...filters, selectedTag: tag === "ALL" ? "" : tag });
 	};
 
 	const handleTextCountChange = (type: "min" | "max", value: string) => {
