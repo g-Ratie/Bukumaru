@@ -45,7 +45,7 @@ export function CollapsibleSearchForm({
 					<Filter size={16} />
 					<span className="font-medium">検索フィルター</span>
 					{hasActiveFilters && (
-						<span className="rounded bg-blue-100 px-2 py-1 text-blue-800 text-xs">
+						<span className="rounded bg-blue-100 px-2 py-1 text-blue-800 text-xs dark:bg-blue-900 dark:text-blue-200">
 							適用中
 						</span>
 					)}
@@ -55,7 +55,7 @@ export function CollapsibleSearchForm({
 
 			{/* 展開時のコンテンツ */}
 			{isExpanded && (
-				<div className="mt-2 rounded-lg border bg-white">
+				<div className="mt-2 rounded-lg border bg-white dark:border-border dark:bg-card">
 					<SearchForm
 						filters={filters}
 						onFilterChange={onFilterChange}

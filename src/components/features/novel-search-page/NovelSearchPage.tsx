@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { loadNovelData } from "@/lib/novelDataParser";
 import { filterNovelsWithPagination } from "@/lib/novelSearchFilters";
@@ -88,13 +89,20 @@ export function NovelSearchPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<div className="min-h-screen bg-gray-50 dark:bg-background">
 			<div className="container mx-auto px-4 py-8">
 				<header className="mb-8">
-					<h1 className="mb-2 font-bold text-3xl text-gray-900">
-						小説検索サイト
-					</h1>
-					<p className="text-gray-600">pixiv小説データから作品を検索できます</p>
+					<div className="flex items-center justify-between">
+						<div>
+							<h1 className="mb-2 font-bold text-3xl text-gray-900 dark:text-foreground">
+								小説検索サイト
+							</h1>
+							<p className="text-gray-600 dark:text-muted-foreground">
+								pixiv小説データから作品を検索できます
+							</p>
+						</div>
+						<ThemeToggle />
+					</div>
 				</header>
 
 				{isMobile ? (

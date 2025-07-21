@@ -252,6 +252,8 @@ describe("filterNovels", () => {
 		selectedTag: "",
 		minTextCount: 0,
 		maxTextCount: 50000,
+		currentPage: 1,
+		itemsPerPage: 24,
 		sortBy: "createDate",
 		sortOrder: "desc",
 	};

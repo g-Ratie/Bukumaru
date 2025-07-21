@@ -90,7 +90,9 @@ export function Pagination({
 				{pageNumbers.map((page, index) => (
 					<div key={page === "..." ? `ellipsis-${index}` : `page-${page}`}>
 						{page === "..." ? (
-							<span className="px-2 py-1 text-gray-500">...</span>
+							<span className="px-2 py-1 text-gray-500 dark:text-gray-400">
+								...
+							</span>
 						) : (
 							<Button
 								variant={currentPage === page ? "default" : "outline"}

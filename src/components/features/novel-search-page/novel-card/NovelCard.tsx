@@ -36,26 +36,26 @@ export function NovelCard({
 	};
 
 	return (
-		<Card className="flex flex-col transition-shadow hover:shadow-lg">
+		<Card className="flex flex-col transition-shadow hover:shadow-lg dark:bg-card dark:text-card-foreground">
 			<CardHeader className="shrink-0 pb-3">
 				<CardTitle className="mb-2 line-clamp-2 min-h-[1.5rem] text-lg">
 					<a
 						href={getPixivUrl(novel.id)}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="cursor-pointer text-gray-900 hover:text-blue-800 hover:underline"
+						className="cursor-pointer text-gray-900 hover:text-blue-800 hover:underline dark:text-gray-100 dark:hover:text-blue-400"
 						onClick={(e) => e.stopPropagation()}
 					>
 						{novel.title}
 					</a>
 				</CardTitle>
-				<div className="flex items-center gap-2 text-gray-500 text-sm">
+				<div className="flex items-center gap-2 text-gray-500 text-sm dark:text-gray-400">
 					<span className="min-w-0 flex-1 truncate">
 						by
 						<Button
 							variant="link"
 							size="sm"
-							className="ml-1 h-auto p-0 text-gray-800 hover:text-blue-800"
+							className="ml-1 h-auto p-0 text-gray-800 hover:text-blue-800 dark:text-gray-200 dark:hover:text-blue-400"
 							onClick={(e) => {
 								e.stopPropagation();
 								onAuthorSearch(novel.userName);
@@ -71,7 +71,7 @@ export function NovelCard({
 			</CardHeader>
 
 			<CardContent className="flex flex-1 flex-col space-y-4">
-				<div className="line-clamp-3 min-h-[3rem] text-gray-700 text-sm">
+				<div className="line-clamp-3 min-h-[3rem] text-gray-700 text-sm dark:text-gray-300">
 					{truncateText(novel.description, 100)}
 				</div>
 
@@ -83,7 +83,7 @@ export function NovelCard({
 					))}
 				</div>
 
-				<div className="flex items-center justify-between text-gray-500 text-sm">
+				<div className="flex items-center justify-between text-gray-500 text-sm dark:text-gray-400">
 					<div className="flex items-center gap-2">
 						<span className="flex items-center gap-1">
 							<EyeIcon size={14} />

@@ -23,8 +23,12 @@ export function SearchResults({
 	if (novels.length === 0) {
 		return (
 			<div className="py-12 text-center">
-				<div className="text-gray-500 text-lg">検索結果がありません</div>
-				<p className="mt-2 text-gray-400">検索条件を変更してお試しください</p>
+				<div className="text-gray-500 text-lg dark:text-gray-400">
+					検索結果がありません
+				</div>
+				<p className="mt-2 text-gray-400 dark:text-gray-500">
+					検索条件を変更してお試しください
+				</p>
 			</div>
 		);
 	}
@@ -35,7 +39,7 @@ export function SearchResults({
 				<h2 className="font-semibold text-xl">
 					検索結果 ({totalCount.toLocaleString()}件)
 				</h2>
-				<div className="text-gray-600 text-sm">
+				<div className="text-gray-600 text-sm dark:text-gray-400">
 					{currentPage}/{totalPages}ページ
 				</div>
 			</div>

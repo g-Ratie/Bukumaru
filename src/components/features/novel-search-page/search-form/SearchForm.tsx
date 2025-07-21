@@ -65,7 +65,6 @@ export function SearchForm({
 			tags: filters.tags.filter((tag) => tag !== tagToRemove),
 		});
 	};
-
 	const handleTextCountChange = (type: "min" | "max", value: string) => {
 		const numValue = parseInt(value) || 0;
 		onFilterChange({
@@ -100,7 +99,7 @@ export function SearchForm({
 	};
 
 	return (
-		<div className="space-y-6 rounded-lg bg-white p-4 shadow-md sm:p-6">
+		<div className="space-y-6 rounded-lg bg-white p-4 shadow-md sm:p-6 dark:bg-card dark:text-card-foreground">
 			<div className="flex items-center justify-between">
 				<h2 className="font-semibold text-lg sm:text-xl">検索フィルター</h2>
 				<Button variant="outline" size="sm" onClick={handleReset}>
@@ -119,7 +118,7 @@ export function SearchForm({
 						onChange={(e) => handleAuthorChange(e.target.value)}
 					/>
 					{authorInput && (
-						<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg">
+						<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg dark:border-border dark:bg-popover">
 							{allAuthors
 								.filter((author) =>
 									author.userName
@@ -131,7 +130,7 @@ export function SearchForm({
 									<button
 										key={author.userName}
 										type="button"
-										className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100"
+										className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-accent"
 										onClick={() => handleAuthorChange(author.userName)}
 										onTouchStart={(e) => {
 											e.preventDefault();
@@ -159,7 +158,7 @@ export function SearchForm({
 							onKeyDown={(e) => e.key === "Enter" && handleTagAdd()}
 						/>
 						{tagInput && (
-							<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg">
+							<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg dark:border-border dark:bg-popover">
 								{allTags
 									.filter((tagSuggestion) =>
 										tagSuggestion.tag
@@ -171,7 +170,7 @@ export function SearchForm({
 										<button
 											key={tagSuggestion.tag}
 											type="button"
-											className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100"
+											className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-accent"
 											onClick={() => {
 												if (!filters.tags.includes(tagSuggestion.tag)) {
 													onFilterChange({
