@@ -4,6 +4,8 @@ import { BookmarkIcon, ClockIcon, EyeIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCategories } from "@/hooks/useCategories";
+import { CATEGORY_COLORS } from "@/types/category";
 import type { Novel } from "@/types/novel";
 
 interface NovelCardProps {
@@ -17,6 +19,7 @@ export function NovelCard({
 	onNovelSelect,
 	onAuthorSearch,
 }: NovelCardProps) {
+	const { getCategoryForTag } = useCategories();
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("ja-JP");
 	};
@@ -34,6 +37,35 @@ export function NovelCard({
 	const getPixivUrl = (id: string) => {
 		return `https://www.pixiv.net/novel/show.php?id=${id}`;
 	};
+
+	const getCategoryColorClasses = (color: string) => {
+		const colorConfig = CATEGORY_COLORS.find((c) => c.value === color);
+		return {
+			bgClass: colorConfig?.bgClass || "bg-gray-100 dark:bg-gray-800",
+			textClass: colorConfig?.textClass || "text-gray-800 dark:text-gray-200",
+		};
+	};
+
+	const sortTagsByCategory = (tags: string[]) => {
+		const categorizedTags: {
+			tag: string;
+			category: { id: string; name: string; color: string; tags: string[] };
+		}[] = [];
+		const uncategorizedTags: string[] = [];
+
+		tags.forEach((tag) => {
+			const category = getCategoryForTag(tag);
+			if (category) {
+				categorizedTags.push({ tag, category });
+			} else {
+				uncategorizedTags.push(tag);
+			}
+		});
+
+		return { categorizedTags, uncategorizedTags };
+	};
+
+	const { categorizedTags, uncategorizedTags } = sortTagsByCategory(novel.tags);
 
 	return (
 		<Card className="flex flex-col transition-shadow hover:shadow-lg dark:bg-card dark:text-card-foreground">
@@ -76,7 +108,20 @@ export function NovelCard({
 				</div>
 
 				<div className="flex flex-wrap gap-1">
-					{novel.tags.map((tag) => (
+					{/* カテゴリ付きタグを先に表示 */}
+					{categorizedTags.map(({ tag, category }) => {
+						const colorClasses = getCategoryColorClasses(category.color);
+						return (
+							<Badge
+								key={tag}
+								className={`${colorClasses.bgClass} ${colorClasses.textClass} border-0 text-xs`}
+							>
+								{tag}
+							</Badge>
+						);
+					})}
+					{/* 通常のタグ */}
+					{uncategorizedTags.map((tag) => (
 						<Badge key={tag} variant="secondary" className="text-xs">
 							{tag}
 						</Badge>

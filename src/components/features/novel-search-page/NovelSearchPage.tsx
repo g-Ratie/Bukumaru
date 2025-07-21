@@ -1,7 +1,10 @@
 "use client";
 
+import { Settings } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
+import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { loadNovelData } from "@/lib/novelDataParser";
 import { filterNovelsWithPagination } from "@/lib/novelSearchFilters";
@@ -101,7 +104,15 @@ export function NovelSearchPage() {
 								pixiv小説データから作品を検索できます
 							</p>
 						</div>
-						<ThemeToggle />
+						<div className="flex items-center gap-2">
+							<Link href="/settings">
+								<Button variant="outline" size="sm">
+									<Settings className="mr-2 h-4 w-4" />
+									設定
+								</Button>
+							</Link>
+							<ThemeToggle />
+						</div>
 					</div>
 				</header>
 
