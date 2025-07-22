@@ -84,6 +84,18 @@ export function NovelSearchPage() {
 		setSelectedNovel(null);
 	};
 
+	const handleTagSearch = (tag: string) => {
+		setFilters((prev) => {
+			const newTags = prev.tags.includes(tag) ? prev.tags : [...prev.tags, tag];
+			return {
+				...prev,
+				tags: newTags,
+				currentPage: 1,
+			};
+		});
+		setSelectedNovel(null);
+	};
+
 	const handlePageChange = (page: number) => {
 		setFilters((prev) => ({
 			...prev,
@@ -127,6 +139,7 @@ export function NovelSearchPage() {
 							searchResult={searchResult}
 							onNovelSelect={handleNovelSelect}
 							onAuthorSearch={handleAuthorSearch}
+							onTagSearch={handleTagSearch}
 							onPageChange={handlePageChange}
 						/>
 					</div>
@@ -145,6 +158,7 @@ export function NovelSearchPage() {
 								searchResult={searchResult}
 								onNovelSelect={handleNovelSelect}
 								onAuthorSearch={handleAuthorSearch}
+								onTagSearch={handleTagSearch}
 								onPageChange={handlePageChange}
 							/>
 						</div>
@@ -156,6 +170,7 @@ export function NovelSearchPage() {
 						novel={selectedNovel}
 						onClose={handleNovelClose}
 						onAuthorSearch={handleAuthorSearch}
+						onTagSearch={handleTagSearch}
 					/>
 				)}
 			</div>

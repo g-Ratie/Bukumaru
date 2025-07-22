@@ -12,12 +12,14 @@ interface NovelCardProps {
 	novel: Novel;
 	onNovelSelect: (novel: Novel) => void;
 	onAuthorSearch: (authorName: string) => void;
+	onTagSearch: (tag: string) => void;
 }
 
 export function NovelCard({
 	novel,
 	onNovelSelect,
 	onAuthorSearch,
+	onTagSearch,
 }: NovelCardProps) {
 	const { getCategoryForTag } = useCategories();
 	const formatDate = (dateString: string) => {
@@ -114,7 +116,11 @@ export function NovelCard({
 						return (
 							<Badge
 								key={tag}
-								className={`${colorClasses.bgClass} ${colorClasses.textClass} border-0 text-xs`}
+								className={`${colorClasses.bgClass} ${colorClasses.textClass} cursor-pointer border-0 text-xs transition-opacity hover:opacity-80`}
+								onClick={(e) => {
+									e.stopPropagation();
+									onTagSearch(tag);
+								}}
 							>
 								{tag}
 							</Badge>
@@ -122,7 +128,15 @@ export function NovelCard({
 					})}
 					{/* 通常のタグ */}
 					{uncategorizedTags.map((tag) => (
-						<Badge key={tag} variant="secondary" className="text-xs">
+						<Badge
+							key={tag}
+							variant="secondary"
+							className="cursor-pointer text-xs transition-opacity hover:opacity-80"
+							onClick={(e) => {
+								e.stopPropagation();
+								onTagSearch(tag);
+							}}
+						>
 							{tag}
 						</Badge>
 					))}

@@ -9,6 +9,7 @@ interface SearchResultsProps {
 	searchResult: SearchResult;
 	onNovelSelect: (novel: Novel) => void;
 	onAuthorSearch: (authorName: string) => void;
+	onTagSearch: (tag: string) => void;
 	onPageChange: (page: number) => void;
 }
 
@@ -16,6 +17,7 @@ export function SearchResults({
 	searchResult,
 	onNovelSelect,
 	onAuthorSearch,
+	onTagSearch,
 	onPageChange,
 }: SearchResultsProps) {
 	const { novels, totalCount, currentPage, totalPages } = searchResult;
@@ -51,6 +53,7 @@ export function SearchResults({
 						novel={novel}
 						onNovelSelect={onNovelSelect}
 						onAuthorSearch={onAuthorSearch}
+						onTagSearch={onTagSearch}
 					/>
 				))}
 			</div>

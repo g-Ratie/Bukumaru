@@ -22,12 +22,14 @@ interface NovelDetailProps {
 	novel: Novel;
 	onClose: () => void;
 	onAuthorSearch: (authorName: string) => void;
+	onTagSearch: (tag: string) => void;
 }
 
 export function NovelDetail({
 	novel,
 	onClose,
 	onAuthorSearch,
+	onTagSearch,
 }: NovelDetailProps) {
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("ja-JP", {
@@ -152,7 +154,15 @@ export function NovelDetail({
 						<CardContent>
 							<div className="flex flex-wrap gap-2">
 								{novel.tags.map((tag) => (
-									<Badge key={tag} variant="secondary">
+									<Badge
+										key={tag}
+										variant="secondary"
+										className="cursor-pointer transition-opacity hover:opacity-80"
+										onClick={() => {
+											onTagSearch(tag);
+											onClose();
+										}}
+									>
 										{tag}
 									</Badge>
 								))}
