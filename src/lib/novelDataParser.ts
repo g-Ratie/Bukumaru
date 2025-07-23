@@ -143,6 +143,11 @@ export function parseNovelItem(item: unknown): Novel {
 		isMasked: validateOptionalBoolean(novel.isMasked, "isMasked"),
 		aiType: validateOptionalNumber(novel.aiType, "aiType"),
 		isUnlisted: validateOptionalBoolean(novel.isUnlisted, "isUnlisted"),
+		seriesId: validateOptionalStringOrUndefined(novel.seriesId, "seriesId"),
+		seriesTitle: validateOptionalStringOrUndefined(
+			novel.seriesTitle,
+			"seriesTitle",
+		),
 	};
 }
 
@@ -159,6 +164,22 @@ function validateOptionalString(value: unknown, fieldName: string): string {
 	}
 	if (typeof value === "string") {
 		return value;
+	}
+	if (typeof value === "number") {
+		return value.toString();
+	}
+	throw new Error(`${fieldName} must be a string or number`);
+}
+
+function validateOptionalStringOrUndefined(
+	value: unknown,
+	fieldName: string,
+): string | undefined {
+	if (value === undefined || value === null) {
+		return undefined;
+	}
+	if (typeof value === "string") {
+		return value.length > 0 ? value : undefined;
 	}
 	if (typeof value === "number") {
 		return value.toString();

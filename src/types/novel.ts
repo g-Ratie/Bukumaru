@@ -31,4 +31,6 @@ export interface Novel {
 	isMasked: boolean;
 	aiType: number;
 	isUnlisted: boolean;
+	seriesId?: string;
+	seriesTitle?: string;
 }

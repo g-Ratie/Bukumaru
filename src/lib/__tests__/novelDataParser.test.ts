@@ -41,6 +41,8 @@ describe("parseNovelItem", () => {
 		isMasked: false,
 		aiType: 1,
 		isUnlisted: false,
+		seriesId: "12345",
+		seriesTitle: "テストシリーズ",
 	};
 
 	test("should parse valid novel data correctly", () => {
@@ -79,6 +81,8 @@ describe("parseNovelItem", () => {
 			isMasked: false,
 			aiType: 1,
 			isUnlisted: false,
+			seriesId: "12345",
+			seriesTitle: "テストシリーズ",
 		};
 
 		expect(actual).toEqual(expected);
@@ -113,6 +117,8 @@ describe("parseNovelItem", () => {
 		expect(actual.wordCount).toBe(0);
 		expect(actual.description).toBe("");
 		expect(actual.bookmarkData).toBeUndefined();
+		expect(actual.seriesId).toBeUndefined();
+		expect(actual.seriesTitle).toBeUndefined();
 	});
 
 	test("should throw error for missing required fields", () => {
@@ -178,6 +184,42 @@ describe("parseNovelItem", () => {
 
 		const actual = parseNovelItem(dataWithNullBookmark);
 		expect(actual.bookmarkData).toBeUndefined();
+	});
+
+	test("should handle series data correctly", () => {
+		const dataWithSeries = {
+			...validNovelData,
+			seriesId: "14139531",
+			seriesTitle: "最後に勝つのは",
+		};
+
+		const actual = parseNovelItem(dataWithSeries);
+		expect(actual.seriesId).toBe("14139531");
+		expect(actual.seriesTitle).toBe("最後に勝つのは");
+	});
+
+	test("should handle missing series data as undefined", () => {
+		const dataWithoutSeries = {
+			...validNovelData,
+			seriesId: undefined,
+			seriesTitle: undefined,
+		};
+
+		const actual = parseNovelItem(dataWithoutSeries);
+		expect(actual.seriesId).toBeUndefined();
+		expect(actual.seriesTitle).toBeUndefined();
+	});
+
+	test("should handle empty string series data as undefined", () => {
+		const dataWithEmptySeries = {
+			...validNovelData,
+			seriesId: "",
+			seriesTitle: "",
+		};
+
+		const actual = parseNovelItem(dataWithEmptySeries);
+		expect(actual.seriesId).toBeUndefined();
+		expect(actual.seriesTitle).toBeUndefined();
 	});
 });
 

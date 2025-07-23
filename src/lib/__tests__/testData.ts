@@ -31,5 +31,7 @@ export const createMinimalNovelData = (
 	isMasked: false,
 	aiType: 0,
 	isUnlisted: false,
+	seriesId: undefined,
+	seriesTitle: undefined,
 	...overrides,
 });

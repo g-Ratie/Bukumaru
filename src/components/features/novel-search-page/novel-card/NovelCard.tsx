@@ -72,6 +72,17 @@ export function NovelCard({
 	return (
 		<Card className="flex flex-col transition-shadow hover:shadow-lg dark:bg-card dark:text-card-foreground">
 			<CardHeader className="shrink-0 pb-3">
+				{/* シリーズ情報 */}
+				{novel.seriesTitle && (
+					<div className="mb-2">
+						<Badge
+							variant="outline"
+							className="border-blue-200 bg-blue-50 text-blue-700 text-xs dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+						>
+							シリーズ: {novel.seriesTitle}
+						</Badge>
+					</div>
+				)}
 				<CardTitle className="mb-2 line-clamp-2 min-h-[1.5rem] text-lg">
 					<a
 						href={getPixivUrl(novel.id)}
