@@ -1,12 +1,12 @@
 "use client";
 
-import { Settings } from "lucide-react";
+import { Database, Loader2, Settings } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { loadNovelData } from "@/lib/novelDataParser";
+import { getStoredNovelData } from "@/lib/novelDataStorage";
 import { filterNovelsWithPagination } from "@/lib/novelSearchFilters";
 import type { Novel } from "@/types/novel";
 import type { SearchFilters, SearchResult } from "@/types/search";
@@ -24,6 +24,7 @@ export function NovelSearchPage() {
 		totalPages: 1,
 	});
 	const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const isMobile = useMediaQuery("(max-width: 768px)");
 	const [filters, setFilters] = useState<SearchFilters>({
 		authorName: "",
@@ -37,14 +38,17 @@ export function NovelSearchPage() {
 		itemsPerPage: 24,
 	});
 
-	const loadNovels = useCallback(async () => {
-		const result = await loadNovelData("/demo.json");
-
-		if (result.success && result.data) {
-			setNovels(result.data);
+	const loadNovels = useCallback(() => {
+		setIsLoading(true);
+		// LocalStorageから読み込みを試みる
+		const storedData = getStoredNovelData();
+		if (storedData) {
+			setNovels(storedData.novels);
 		} else {
-			console.error("小説データの読み込みに失敗しました:", result.error);
+			// データがない場合は空配列をセット
+			setNovels([]);
 		}
+		setIsLoading(false);
 	}, []);
 
 	const filterNovelsCallback = useCallback(() => {
@@ -128,7 +132,34 @@ export function NovelSearchPage() {
 					</div>
 				</header>
 
-				{isMobile ? (
+				{isLoading ? (
+					<div className="flex min-h-[400px] items-center justify-center">
+						<div className="text-center">
+							<Loader2 className="mx-auto mb-4 h-12 w-12 animate-spin text-muted-foreground" />
+							<p className="text-muted-foreground">データを読み込み中...</p>
+						</div>
+					</div>
+				) : novels.length === 0 ? (
+					<div className="flex min-h-[400px] items-center justify-center">
+						<div className="text-center">
+							<Database className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+							<h2 className="mb-2 font-semibold text-lg">
+								小説データがありません
+							</h2>
+							<p className="mb-4 text-muted-foreground text-sm">
+								設定ページから小説データをアップロードまたは
+								<br />
+								URLを指定してデータを読み込んでください
+							</p>
+							<Link href="/settings">
+								<Button>
+									<Settings className="mr-2 h-4 w-4" />
+									設定ページへ移動
+								</Button>
+							</Link>
+						</div>
+					</div>
+				) : isMobile ? (
 					<div className="space-y-4">
 						<CollapsibleSearchForm
 							filters={filters}
