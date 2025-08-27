@@ -44,3 +44,6 @@ next-env.d.ts
 storybook-static
 
 public/demo.json
+
+.wrangler
+.open-next
