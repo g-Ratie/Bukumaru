@@ -5,7 +5,6 @@ import {
 	ClockIcon,
 	ExternalLinkIcon,
 	EyeIcon,
-	XIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,14 +56,6 @@ export function NovelDetail({
 					<DialogTitle className="pr-8 font-bold text-2xl">
 						{novel.title}
 					</DialogTitle>
-					<Button
-						variant="ghost"
-						size="sm"
-						className="absolute top-4 right-4"
-						onClick={onClose}
-					>
-						<XIcon size={20} />
-					</Button>
 				</DialogHeader>
 
 				<div className="space-y-6">
