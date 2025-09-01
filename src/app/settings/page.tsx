@@ -457,19 +457,17 @@ export default function SettingsPage() {
 										データを読み込み中...
 									</span>
 								</div>
+							) : settings.categories.length === 0 ? (
+								<div className="py-8 text-center">
+									<p className="text-gray-500 dark:text-gray-400">
+										カテゴリが設定されていません
+									</p>
+									<p className="mt-1 text-gray-400 text-sm dark:text-gray-500">
+										カテゴリを作成してタグに色を付けましょう
+									</p>
+								</div>
 							) : (
-								<>
-									settings.categories.length === 0 ? (
-									<div className="py-8 text-center">
-										<p className="text-gray-500 dark:text-gray-400">
-											カテゴリが設定されていません
-										</p>
-										<p className="mt-1 text-gray-400 text-sm dark:text-gray-500">
-											カテゴリを作成してタグに色を付けましょう
-										</p>
-									</div>
-									) : (
-									<div className="space-y-4">
+								<div className="space-y-4">
 										{settings.categories.map((category) => {
 											const colorClasses = getCategoryColorClasses(
 												category.color,
@@ -602,8 +600,7 @@ export default function SettingsPage() {
 												</div>
 											);
 										})}
-									</div>
-								</>
+								</div>
 							)}
 						</CardContent>
 					</Card>
