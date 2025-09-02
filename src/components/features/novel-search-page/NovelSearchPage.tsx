@@ -2,12 +2,18 @@
 
 import { Database, Loader2, Settings } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { getStoredNovelData } from "@/lib/novelDataStorage";
 import { filterNovelsWithPagination } from "@/lib/novelSearchFilters";
+import {
+	getDefaultFilters,
+	parseURLParamsToFilters,
+	serializeFiltersToURLParams,
+} from "@/lib/urlParams";
 import type { Novel } from "@/types/novel";
 import type { SearchFilters, SearchResult } from "@/types/search";
 import { NovelDetail } from "./novel-detail/NovelDetail";
@@ -16,6 +22,8 @@ import { SearchForm } from "./search-form/SearchForm";
 import { SearchResults } from "./search-results/SearchResults";
 
 export function NovelSearchPage() {
+	const router = useRouter();
+	const searchParams = useSearchParams();
 	const [novels, setNovels] = useState<Novel[]>([]);
 	const [searchResult, setSearchResult] = useState<SearchResult>({
 		novels: [],
@@ -25,17 +33,12 @@ export function NovelSearchPage() {
 	});
 	const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [isInitialized, setIsInitialized] = useState(false);
 	const isMobile = useMediaQuery("(max-width: 768px)");
-	const [filters, setFilters] = useState<SearchFilters>({
-		authorName: "",
-		tags: [],
-		selectedTag: "",
-		minTextCount: 0,
-		maxTextCount: 50000,
-		sortBy: "createDate",
-		sortOrder: "desc",
-		currentPage: 1,
-		itemsPerPage: 24,
+	const [filters, setFilters] = useState<SearchFilters>(() => {
+		const defaultFilters = getDefaultFilters();
+		const urlFilters = parseURLParamsToFilters(searchParams);
+		return { ...defaultFilters, ...urlFilters };
 	});
 
 	const loadNovels = useCallback(() => {
@@ -49,6 +52,7 @@ export function NovelSearchPage() {
 			setNovels([]);
 		}
 		setIsLoading(false);
+		setIsInitialized(true);
 	}, []);
 
 	const filterNovelsCallback = useCallback(() => {
@@ -56,13 +60,37 @@ export function NovelSearchPage() {
 		setSearchResult(result);
 	}, [novels, filters]);
 
+	const updateURL = useCallback(
+		(newFilters: SearchFilters) => {
+			const params = serializeFiltersToURLParams(newFilters);
+			const newURL = params ? `?${params}` : window.location.pathname;
+			router.push(newURL, { scroll: false });
+		},
+		[router],
+	);
+
 	useEffect(() => {
 		loadNovels();
 	}, [loadNovels]);
 
 	useEffect(() => {
+		if (isInitialized) {
+			const defaultFilters = getDefaultFilters();
+			const urlFilters = parseURLParamsToFilters(searchParams);
+			const newFilters = { ...defaultFilters, ...urlFilters };
+			setFilters(newFilters);
+		}
+	}, [searchParams, isInitialized]);
+
+	useEffect(() => {
 		filterNovelsCallback();
 	}, [filterNovelsCallback]);
+
+	useEffect(() => {
+		if (isInitialized) {
+			updateURL(filters);
+		}
+	}, [filters, isInitialized, updateURL]);
 
 	const handleFilterChange = (newFilters: SearchFilters) => {
 		setFilters({
