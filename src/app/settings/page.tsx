@@ -457,153 +457,148 @@ export default function SettingsPage() {
 										データを読み込み中...
 									</span>
 								</div>
+							) : settings.categories.length === 0 ? (
+								<div className="py-8 text-center">
+									<p className="text-gray-500 dark:text-gray-400">
+										カテゴリが設定されていません
+									</p>
+									<p className="mt-1 text-gray-400 text-sm dark:text-gray-500">
+										カテゴリを作成してタグに色を付けましょう
+									</p>
+								</div>
 							) : (
-								<>
-									settings.categories.length === 0 ? (
-									<div className="py-8 text-center">
-										<p className="text-gray-500 dark:text-gray-400">
-											カテゴリが設定されていません
-										</p>
-										<p className="mt-1 text-gray-400 text-sm dark:text-gray-500">
-											カテゴリを作成してタグに色を付けましょう
-										</p>
-									</div>
-									) : (
-									<div className="space-y-4">
-										{settings.categories.map((category) => {
-											const colorClasses = getCategoryColorClasses(
-												category.color,
-											);
-											return (
-												<div
-													key={category.id}
-													className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
-												>
-													<div className="mb-3 flex items-center justify-between">
-														<div className="flex items-center gap-2">
-															<Badge
-																className={`${colorClasses.bgClass} ${colorClasses.textClass} border-0`}
-															>
-																{category.name}
-															</Badge>
-															<span className="text-gray-500 text-sm dark:text-gray-400">
-																({category.tags.length}個のタグ)
-															</span>
-														</div>
-														<div className="flex gap-2">
-															<Button
-																variant="outline"
-																size="sm"
-																onClick={() => handleEditCategory(category)}
-															>
-																編集
-															</Button>
-															<Button
-																variant="outline"
-																size="sm"
-																onClick={() =>
-																	handleDeleteCategory(category.id)
-																}
-																className="text-red-600 hover:text-red-700"
-															>
-																<Trash2 className="h-4 w-4" />
-															</Button>
-														</div>
-													</div>
-
-													{/* タグ一覧 */}
-													<div className="mb-3 flex flex-wrap gap-2">
-														{category.tags.map((tag) => (
-															<Badge
-																key={tag}
-																variant="outline"
-																className="flex items-center gap-1"
-															>
-																{tag}
-																<Button
-																	variant="ghost"
-																	size="sm"
-																	className="h-auto p-0"
-																	onClick={() =>
-																		handleRemoveTag(category.id, tag)
-																	}
-																>
-																	<X className="h-3 w-3" />
-																</Button>
-															</Badge>
-														))}
-													</div>
-
-													{/* タグ追加 */}
-													<div className="flex gap-2">
-														<div className="relative flex-1">
-															<Input
-																placeholder="タグ名を入力"
-																value={newTag}
-																onChange={(e) => setNewTag(e.target.value)}
-																onKeyDown={(e) => {
-																	if (e.key === "Enter") {
-																		handleAddTag(category.id);
-																	}
-																}}
-																onFocus={() => setActiveTagInput(category.id)}
-																onBlur={() =>
-																	setTimeout(() => setActiveTagInput(null), 150)
-																}
-																className="flex-1"
-															/>
-															{newTag && activeTagInput === category.id && (
-																<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg dark:border-border dark:bg-popover">
-																	{allTags
-																		.filter(
-																			(tagSuggestion) =>
-																				tagSuggestion.tag
-																					.toLowerCase()
-																					.includes(newTag.toLowerCase()) &&
-																				!category.tags.includes(
-																					tagSuggestion.tag,
-																				),
-																		)
-																		.slice(0, 10)
-																		.map((tagSuggestion) => (
-																			<button
-																				key={tagSuggestion.tag}
-																				type="button"
-																				className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-accent"
-																				onClick={() =>
-																					handleTagSelect(
-																						category.id,
-																						tagSuggestion.tag,
-																					)
-																				}
-																				onTouchStart={(e) => {
-																					e.preventDefault();
-																					handleTagSelect(
-																						category.id,
-																						tagSuggestion.tag,
-																					);
-																				}}
-																			>
-																				{tagSuggestion.tag} (
-																				{tagSuggestion.count})
-																			</button>
-																		))}
-																</div>
-															)}
-														</div>
-														<Button
-															onClick={() => handleAddTag(category.id)}
-															size="sm"
-															disabled={!newTag.trim()}
+								<div className="space-y-4">
+									{settings.categories.map((category) => {
+										const colorClasses = getCategoryColorClasses(
+											category.color,
+										);
+										return (
+											<div
+												key={category.id}
+												className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+											>
+												<div className="mb-3 flex items-center justify-between">
+													<div className="flex items-center gap-2">
+														<Badge
+															className={`${colorClasses.bgClass} ${colorClasses.textClass} border-0`}
 														>
-															追加
+															{category.name}
+														</Badge>
+														<span className="text-gray-500 text-sm dark:text-gray-400">
+															({category.tags.length}個のタグ)
+														</span>
+													</div>
+													<div className="flex gap-2">
+														<Button
+															variant="outline"
+															size="sm"
+															onClick={() => handleEditCategory(category)}
+														>
+															編集
+														</Button>
+														<Button
+															variant="outline"
+															size="sm"
+															onClick={() => handleDeleteCategory(category.id)}
+															className="text-red-600 hover:text-red-700"
+														>
+															<Trash2 className="h-4 w-4" />
 														</Button>
 													</div>
 												</div>
-											);
-										})}
-									</div>
-								</>
+
+												{/* タグ一覧 */}
+												<div className="mb-3 flex flex-wrap gap-2">
+													{category.tags.map((tag) => (
+														<Badge
+															key={tag}
+															variant="outline"
+															className="flex items-center gap-1"
+														>
+															{tag}
+															<Button
+																variant="ghost"
+																size="sm"
+																className="h-auto p-0"
+																onClick={() =>
+																	handleRemoveTag(category.id, tag)
+																}
+															>
+																<X className="h-3 w-3" />
+															</Button>
+														</Badge>
+													))}
+												</div>
+
+												{/* タグ追加 */}
+												<div className="flex gap-2">
+													<div className="relative flex-1">
+														<Input
+															placeholder="タグ名を入力"
+															value={newTag}
+															onChange={(e) => setNewTag(e.target.value)}
+															onKeyDown={(e) => {
+																if (e.key === "Enter") {
+																	handleAddTag(category.id);
+																}
+															}}
+															onFocus={() => setActiveTagInput(category.id)}
+															onBlur={() =>
+																setTimeout(() => setActiveTagInput(null), 150)
+															}
+															className="flex-1"
+														/>
+														{newTag && activeTagInput === category.id && (
+															<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg dark:border-border dark:bg-popover">
+																{allTags
+																	.filter(
+																		(tagSuggestion) =>
+																			tagSuggestion.tag
+																				.toLowerCase()
+																				.includes(newTag.toLowerCase()) &&
+																			!category.tags.includes(
+																				tagSuggestion.tag,
+																			),
+																	)
+																	.slice(0, 10)
+																	.map((tagSuggestion) => (
+																		<button
+																			key={tagSuggestion.tag}
+																			type="button"
+																			className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-accent"
+																			onClick={() =>
+																				handleTagSelect(
+																					category.id,
+																					tagSuggestion.tag,
+																				)
+																			}
+																			onTouchStart={(e) => {
+																				e.preventDefault();
+																				handleTagSelect(
+																					category.id,
+																					tagSuggestion.tag,
+																				);
+																			}}
+																		>
+																			{tagSuggestion.tag} ({tagSuggestion.count}
+																			)
+																		</button>
+																	))}
+															</div>
+														)}
+													</div>
+													<Button
+														onClick={() => handleAddTag(category.id)}
+														size="sm"
+														disabled={!newTag.trim()}
+													>
+														追加
+													</Button>
+												</div>
+											</div>
+										);
+									})}
+								</div>
 							)}
 						</CardContent>
 					</Card>
