@@ -2,6 +2,7 @@
 
 import { Database, Loader2, Settings } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
 import { Button } from "@/components/ui/button";
@@ -26,17 +27,29 @@ export function NovelSearchPage() {
 	const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const isMobile = useMediaQuery("(max-width: 768px)");
-	const [filters, setFilters] = useState<SearchFilters>({
-		authorName: "",
-		tags: [],
-		selectedTag: "",
-		minTextCount: 0,
-		maxTextCount: 50000,
-		sortBy: "createDate",
-		sortOrder: "desc",
-		currentPage: 1,
-		itemsPerPage: 24,
-	});
+	const router = useRouter();
+	const searchParams = useSearchParams();
+
+	// URLパラメータから初期値を取得
+	const getInitialFilters = (): SearchFilters => {
+		const params = new URLSearchParams(searchParams.toString());
+		return {
+			authorName: params.get("author") || "",
+			tags: params.get("tags")
+				? params.get("tags")?.split(",").filter(Boolean)
+				: [],
+			selectedTag: params.get("selectedTag") || "",
+			minTextCount: Number(params.get("minText")) || 0,
+			maxTextCount: Number(params.get("maxText")) || 50000,
+			sortBy: (params.get("sortBy") as SearchFilters["sortBy"]) || "createDate",
+			sortOrder:
+				(params.get("sortOrder") as SearchFilters["sortOrder"]) || "desc",
+			currentPage: Number(params.get("page")) || 1,
+			itemsPerPage: Number(params.get("perPage")) || 24,
+		};
+	};
+
+	const [filters, setFilters] = useState<SearchFilters>(getInitialFilters());
 
 	const loadNovels = useCallback(() => {
 		setIsLoading(true);
@@ -56,6 +69,35 @@ export function NovelSearchPage() {
 		setSearchResult(result);
 	}, [novels, filters]);
 
+	// URLパラメータを更新
+	const updateURLParams = useCallback(
+		(newFilters: SearchFilters) => {
+			const params = new URLSearchParams();
+
+			if (newFilters.authorName) params.set("author", newFilters.authorName);
+			if (newFilters.tags.length > 0)
+				params.set("tags", newFilters.tags.join(","));
+			if (newFilters.selectedTag)
+				params.set("selectedTag", newFilters.selectedTag);
+			if (newFilters.minTextCount !== 0)
+				params.set("minText", newFilters.minTextCount.toString());
+			if (newFilters.maxTextCount !== 50000)
+				params.set("maxText", newFilters.maxTextCount.toString());
+			if (newFilters.sortBy !== "createDate")
+				params.set("sortBy", newFilters.sortBy);
+			if (newFilters.sortOrder !== "desc")
+				params.set("sortOrder", newFilters.sortOrder);
+			if (newFilters.currentPage !== 1)
+				params.set("page", newFilters.currentPage.toString());
+			if (newFilters.itemsPerPage !== 24)
+				params.set("perPage", newFilters.itemsPerPage.toString());
+
+			const searchString = params.toString();
+			router.push(searchString ? `?${searchString}` : "/", { scroll: false });
+		},
+		[router],
+	);
+
 	useEffect(() => {
 		loadNovels();
 	}, [loadNovels]);
@@ -63,6 +105,11 @@ export function NovelSearchPage() {
 	useEffect(() => {
 		filterNovelsCallback();
 	}, [filterNovelsCallback]);
+
+	// フィルター変更時にURLを更新
+	useEffect(() => {
+		updateURLParams(filters);
+	}, [filters, updateURLParams]);
 
 	const handleFilterChange = (newFilters: SearchFilters) => {
 		setFilters({
