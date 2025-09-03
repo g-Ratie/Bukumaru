@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useURLSearchParams } from "@/hooks/useURLSearchParams";
 import { getStoredNovelData } from "@/lib/novelDataStorage";
 import { filterNovelsWithPagination } from "@/lib/novelSearchFilters";
 import type { Novel } from "@/types/novel";
@@ -26,17 +27,11 @@ export function NovelSearchPage() {
 	const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const isMobile = useMediaQuery("(max-width: 768px)");
-	const [filters, setFilters] = useState<SearchFilters>({
-		authorName: "",
-		tags: [],
-		selectedTag: "",
-		minTextCount: 0,
-		maxTextCount: 50000,
-		sortBy: "createDate",
-		sortOrder: "desc",
-		currentPage: 1,
-		itemsPerPage: 24,
-	});
+	const { getFiltersFromURL, updateURLParams, isInitialized } =
+		useURLSearchParams();
+	const [filters, setFilters] = useState<SearchFilters>(() =>
+		getFiltersFromURL(),
+	);
 
 	const loadNovels = useCallback(() => {
 		setIsLoading(true);
@@ -61,8 +56,21 @@ export function NovelSearchPage() {
 	}, [loadNovels]);
 
 	useEffect(() => {
+		if (isInitialized) {
+			const urlFilters = getFiltersFromURL();
+			setFilters(urlFilters);
+		}
+	}, [isInitialized, getFiltersFromURL]);
+
+	useEffect(() => {
 		filterNovelsCallback();
 	}, [filterNovelsCallback]);
+
+	useEffect(() => {
+		if (isInitialized) {
+			updateURLParams(filters);
+		}
+	}, [filters, isInitialized, updateURLParams]);
 
 	const handleFilterChange = (newFilters: SearchFilters) => {
 		setFilters({
