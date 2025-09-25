@@ -6,10 +6,11 @@ import { useCallback, useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { getStoredNovelData } from "@/lib/novelDataStorage";
+import { getStoredNovelData, isFirstVisit, markAsVisited, saveDemoData } from "@/lib/novelDataStorage";
 import { filterNovelsWithPagination } from "@/lib/novelSearchFilters";
 import type { Novel } from "@/types/novel";
 import type { SearchFilters, SearchResult } from "@/types/search";
+import { WelcomeModal } from "@/components/features/welcome-modal/WelcomeModal";
 import { NovelDetail } from "./novel-detail/NovelDetail";
 import { CollapsibleSearchForm } from "./search-form/CollapsibleSearchForm";
 import { SearchForm } from "./search-form/SearchForm";
@@ -25,6 +26,7 @@ export function NovelSearchPage() {
 	});
 	const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 	const isMobile = useMediaQuery("(max-width: 768px)");
 	const [filters, setFilters] = useState<SearchFilters>({
 		authorName: "",
@@ -45,7 +47,10 @@ export function NovelSearchPage() {
 		if (storedData) {
 			setNovels(storedData.novels);
 		} else {
-			// データがない場合は空配列をセット
+			// データがない場合、初回訪問かチェック
+			if (isFirstVisit()) {
+				setShowWelcomeModal(true);
+			}
 			setNovels([]);
 		}
 		setIsLoading(false);
@@ -105,6 +110,18 @@ export function NovelSearchPage() {
 			...prev,
 			currentPage: page,
 		}));
+	};
+
+	const handleWelcomeClose = () => {
+		setShowWelcomeModal(false);
+		markAsVisited();
+	};
+
+	const handleDemoClick = () => {
+		saveDemoData();
+		setShowWelcomeModal(false);
+		// データを再読み込み
+		loadNovels();
 	};
 
 	return (
@@ -204,6 +221,12 @@ export function NovelSearchPage() {
 						onTagSearch={handleTagSearch}
 					/>
 				)}
+
+				<WelcomeModal
+					isOpen={showWelcomeModal}
+					onClose={handleWelcomeClose}
+					onDemoClick={handleDemoClick}
+				/>
 			</div>
 		</div>
 	);

@@ -2,12 +2,14 @@
 
 import type { Novel } from "@/types/novel";
 import { parseNovelData } from "./novelDataParser";
+import { generateDemoNovels } from "./demoData";
 
 const STORAGE_KEY = "novel-data-source";
+const FIRST_VISIT_KEY = "novel-search-first-visit";
 
 export interface NovelDataStorage {
 	novels: Novel[];
-	sourceType: "url" | "file" | "default";
+	sourceType: "url" | "file" | "demo";
 	sourceUrl?: string;
 	fileName?: string;
 	updatedAt: string;
@@ -256,4 +258,33 @@ export function formatUpdateTime(updatedAt: string): string {
 		hour: "2-digit",
 		minute: "2-digit",
 	});
+}
+
+export function isFirstVisit(): boolean {
+	if (typeof window === "undefined") {
+		return false;
+	}
+
+	const hasVisited = localStorage.getItem(FIRST_VISIT_KEY);
+	return !hasVisited;
+}
+
+export function markAsVisited(): void {
+	if (typeof window === "undefined") {
+		return;
+	}
+
+	localStorage.setItem(FIRST_VISIT_KEY, "true");
+}
+
+export function saveDemoData(): void {
+	const demoNovels = generateDemoNovels();
+	const storageData: NovelDataStorage = {
+		novels: demoNovels,
+		sourceType: "demo",
+		updatedAt: new Date().toISOString(),
+	};
+
+	saveNovelData(storageData);
+	markAsVisited();
 }
