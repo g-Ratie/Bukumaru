@@ -1,13 +1,22 @@
 "use client";
 
-import { Database, Loader2, Settings } from "lucide-react";
+import { Database, Loader2, Settings, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useURLSearchParams } from "@/hooks/useURLSearchParams";
-import { getStoredNovelData } from "@/lib/novelDataStorage";
+import { createDemoNovelData } from "@/lib/demoNovelData";
+import { getStoredNovelData, saveNovelData } from "@/lib/novelDataStorage";
 import { filterNovelsWithPagination } from "@/lib/novelSearchFilters";
 import type { Novel } from "@/types/novel";
 import type { SearchFilters, SearchResult } from "@/types/search";
@@ -26,6 +35,8 @@ export function NovelSearchPageContent() {
 	});
 	const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [isSetupDialogOpen, setIsSetupDialogOpen] = useState(false);
+	const [isApplyingDemoData, setIsApplyingDemoData] = useState(false);
 	const isMobile = useMediaQuery("(max-width: 768px)");
 	const { getFiltersFromURL, updateURLParams, isInitialized } =
 		useURLSearchParams();
@@ -39,9 +50,11 @@ export function NovelSearchPageContent() {
 		const storedData = getStoredNovelData();
 		if (storedData) {
 			setNovels(storedData.novels);
+			setIsSetupDialogOpen(false);
 		} else {
 			// データがない場合は空配列をセット
 			setNovels([]);
+			setIsSetupDialogOpen(true);
 		}
 		setIsLoading(false);
 	}, []);
@@ -115,9 +128,70 @@ export function NovelSearchPageContent() {
 		}));
 	};
 
+	const handleUseDemoData = () => {
+		setIsApplyingDemoData(true);
+		try {
+			const demoData = createDemoNovelData();
+			saveNovelData(demoData);
+			setNovels(demoData.novels);
+			setSelectedNovel(null);
+			setIsSetupDialogOpen(false);
+		} finally {
+			setIsApplyingDemoData(false);
+		}
+	};
+
 	return (
 		<div className="min-h-screen bg-gray-50 dark:bg-background">
 			<div className="container mx-auto px-4 py-8">
+				<Dialog open={isSetupDialogOpen} onOpenChange={setIsSetupDialogOpen}>
+					<DialogContent className="sm:max-w-lg">
+						<DialogHeader>
+							<DialogTitle>小説データの準備</DialogTitle>
+							<DialogDescription>
+								初回利用のためのデータが見つかりませんでした。設定ページでデータを
+								読み込むか、手軽に試せるデモデータを利用できます。
+							</DialogDescription>
+						</DialogHeader>
+						<div className="space-y-4 py-2">
+							<div className="flex items-start gap-3 rounded-md border bg-muted/50 p-4">
+								<Database className="mt-1 h-5 w-5 text-muted-foreground" />
+								<div className="space-y-1 text-sm">
+									<p className="font-medium">設定ページでデータを読み込む</p>
+									<p className="text-muted-foreground">
+										pixivからエクスポートしたJSONファイルやURLを登録して、実際の
+										データで検索を開始できます。
+									</p>
+								</div>
+							</div>
+							<div className="flex items-start gap-3 rounded-md border bg-muted/50 p-4">
+								<Sparkles className="mt-1 h-5 w-5 text-primary" />
+								<div className="space-y-1 text-sm">
+									<p className="font-medium">すぐに試せるデモデータを使用</p>
+									<p className="text-muted-foreground">
+										アプリの使い方を確認できるサンプルデータです。後から設定ページで
+										本番データに切り替えられます。
+									</p>
+								</div>
+							</div>
+						</div>
+						<DialogFooter>
+							<Button asChild variant="outline">
+								<Link href="/settings">
+									<Settings className="mr-2 h-4 w-4" />
+									設定ページへ
+								</Link>
+							</Button>
+							<Button onClick={handleUseDemoData} disabled={isApplyingDemoData}>
+								{isApplyingDemoData && (
+									<Loader2 className="h-4 w-4 animate-spin" />
+								)}
+								デモデータを読み込む
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+
 				<header className="mb-8">
 					<div className="flex items-center justify-between">
 						<div>
@@ -159,12 +233,21 @@ export function NovelSearchPageContent() {
 								<br />
 								URLを指定してデータを読み込んでください
 							</p>
-							<Link href="/settings">
-								<Button>
-									<Settings className="mr-2 h-4 w-4" />
-									設定ページへ移動
+							<div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+								<Link href="/settings">
+									<Button>
+										<Settings className="mr-2 h-4 w-4" />
+										設定ページへ移動
+									</Button>
+								</Link>
+								<Button
+									variant="outline"
+									onClick={() => setIsSetupDialogOpen(true)}
+								>
+									<Sparkles className="mr-2 h-4 w-4" />
+									デモデータを試す
 								</Button>
-							</Link>
+							</div>
 						</div>
 					</div>
 				) : isMobile ? (

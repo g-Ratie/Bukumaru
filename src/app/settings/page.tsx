@@ -11,6 +11,7 @@ import {
 	RefreshCw,
 	Save,
 	Settings,
+	Sparkles,
 	Trash2,
 	Upload,
 	X,
@@ -73,7 +74,7 @@ export default function SettingsPage() {
 	const [activeTagInput, setActiveTagInput] = useState<string | null>(null);
 	const [isInitialLoading, setIsInitialLoading] = useState(true);
 	const [dataSource, setDataSource] = useState<{
-		type: "url" | "file" | "default";
+		type: "url" | "file" | "default" | "demo";
 		url?: string;
 		fileName?: string;
 		updatedAt?: string;
@@ -319,6 +320,12 @@ export default function SettingsPage() {
 											<>
 												<FileJson className="mr-2 inline h-4 w-4" />
 												データが設定されていません
+											</>
+										)}
+										{dataSource.type === "demo" && (
+											<>
+												<Sparkles className="mr-2 inline h-4 w-4 text-primary" />
+												デモデータを使用中
 											</>
 										)}
 										{dataSource.type === "url" && (
