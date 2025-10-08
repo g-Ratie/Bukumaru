@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import { Pagination } from "@/components/shared/pagination/Pagination";
 import type { Novel } from "@/types/novel";
 import type { SearchResult } from "@/types/search";
@@ -21,6 +23,21 @@ export function SearchResults({
 	onPageChange,
 }: SearchResultsProps) {
 	const { novels, totalCount, currentPage, totalPages } = searchResult;
+	const hasMountedRef = useRef(false);
+
+	useEffect(() => {
+		if (!hasMountedRef.current) {
+			hasMountedRef.current = true;
+			return;
+		}
+
+		if (!Number.isFinite(currentPage)) return;
+
+		window.scrollTo({
+			top: 0,
+			behavior: "smooth",
+		});
+	}, [currentPage]);
 
 	if (novels.length === 0) {
 		return (
@@ -48,13 +65,14 @@ export function SearchResults({
 
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{novels.map((novel) => (
-					<NovelCard
-						key={novel.id}
-						novel={novel}
-						onNovelSelect={onNovelSelect}
-						onAuthorSearch={onAuthorSearch}
-						onTagSearch={onTagSearch}
-					/>
+					<div key={novel.id}>
+						<NovelCard
+							novel={novel}
+							onNovelSelect={onNovelSelect}
+							onAuthorSearch={onAuthorSearch}
+							onTagSearch={onTagSearch}
+						/>
+					</div>
 				))}
 			</div>
 
