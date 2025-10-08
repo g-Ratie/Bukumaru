@@ -23,15 +23,23 @@ export function SearchResults({
 	onPageChange,
 }: SearchResultsProps) {
 	const { novels, totalCount, currentPage, totalPages } = searchResult;
-	const hasMountedRef = useRef(false);
+	const previousPageRef = useRef<number | null>(null);
 
 	useEffect(() => {
-		if (!hasMountedRef.current) {
-			hasMountedRef.current = true;
+		if (!Number.isFinite(currentPage)) return;
+
+		if (previousPageRef.current === null) {
+			previousPageRef.current = currentPage;
 			return;
 		}
 
-		if (!Number.isFinite(currentPage)) return;
+		if (previousPageRef.current === currentPage) {
+			return;
+		}
+
+		previousPageRef.current = currentPage;
+
+		if (typeof window === "undefined") return;
 
 		window.scrollTo({
 			top: 0,
