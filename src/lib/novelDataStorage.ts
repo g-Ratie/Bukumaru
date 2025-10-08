@@ -7,7 +7,7 @@ const STORAGE_KEY = "novel-data-source";
 
 export interface NovelDataStorage {
 	novels: Novel[];
-	sourceType: "url" | "file" | "default";
+	sourceType: "url" | "file" | "default" | "demo";
 	sourceUrl?: string;
 	fileName?: string;
 	updatedAt: string;
