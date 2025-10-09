@@ -23,25 +23,26 @@ export function SearchResults({
 	onPageChange,
 }: SearchResultsProps) {
 	const { novels, totalCount, currentPage, totalPages } = searchResult;
-	const firstNovelRef = useRef<HTMLDivElement | null>(null);
-	const hasMountedRef = useRef(false);
+	const previousPageRef = useRef<number | null>(null);
 
 	useEffect(() => {
-		if (!hasMountedRef.current) {
-			hasMountedRef.current = true;
+		if (!Number.isFinite(currentPage)) return;
+
+		if (previousPageRef.current === null) {
+			previousPageRef.current = currentPage;
 			return;
 		}
 
-		if (!Number.isFinite(currentPage)) return;
+		if (previousPageRef.current === currentPage) {
+			return;
+		}
 
-		const target = firstNovelRef.current;
-		if (!target) return;
+		previousPageRef.current = currentPage;
 
-		const rect = target.getBoundingClientRect();
-		const top = rect.top + window.scrollY - 16; // 少し余白を持たせる
+		if (typeof window === "undefined") return;
 
 		window.scrollTo({
-			top: Math.max(top, 0),
+			top: 0,
 			behavior: "smooth",
 		});
 	}, [currentPage]);
@@ -71,8 +72,8 @@ export function SearchResults({
 			</div>
 
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{novels.map((novel, index) => (
-					<div key={novel.id} ref={index === 0 ? firstNovelRef : undefined}>
+				{novels.map((novel) => (
+					<div key={novel.id}>
 						<NovelCard
 							novel={novel}
 							onNovelSelect={onNovelSelect}
