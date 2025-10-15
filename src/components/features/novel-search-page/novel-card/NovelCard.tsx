@@ -1,6 +1,8 @@
 "use client";
 
+import DOMPurify from "dompurify";
 import { BookmarkIcon, ClockIcon, EyeIcon } from "lucide-react";
+import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,11 +31,6 @@ export function NovelCard({
 	const formatReadingTime = (seconds: number) => {
 		const minutes = Math.ceil(seconds / 60);
 		return `${minutes}分`;
-	};
-
-	const truncateText = (text: string, maxLength: number) => {
-		if (text.length <= maxLength) return text;
-		return `${text.substring(0, maxLength)}...`;
 	};
 
 	const getPixivUrl = (id: string) => {
@@ -68,6 +65,16 @@ export function NovelCard({
 	};
 
 	const { categorizedTags, uncategorizedTags } = sortTagsByCategory(novel.tags);
+
+	const sanitizedDescription = useMemo(() => {
+		const normalizedDescription = novel.description.replace(/\r?\n/g, "<br />");
+
+		return DOMPurify.sanitize(normalizedDescription, {
+			USE_PROFILES: { html: true },
+			ALLOWED_TAGS: ["a", "b", "br", "em", "i", "strong", "u"],
+			ALLOWED_ATTR: ["href", "title", "target", "rel"],
+		});
+	}, [novel.description]);
 
 	return (
 		<Card className="flex flex-col transition-shadow hover:shadow-lg dark:bg-card dark:text-card-foreground">
@@ -116,9 +123,11 @@ export function NovelCard({
 			</CardHeader>
 
 			<CardContent className="flex flex-1 flex-col space-y-4">
-				<div className="line-clamp-3 min-h-[3rem] text-gray-700 text-sm dark:text-gray-300">
-					{truncateText(novel.description, 100)}
-				</div>
+                                // biome-ignore lint/security/noDangerouslySetInnerHtml: Description is sanitized with DOMPurify above
+                                <div
+                                        className="line-clamp-3 min-h-[3rem] text-gray-700 text-sm dark:text-gray-300"
+                                        dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+                                />
 
 				<div className="flex flex-wrap gap-1">
 					{/* カテゴリ付きタグを先に表示 */}
