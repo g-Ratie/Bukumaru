@@ -1,12 +1,15 @@
 "use client";
 
+import DOMPurify from "dompurify";
 import { BookmarkIcon, ClockIcon, EyeIcon } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCategories } from "@/hooks/useCategories";
 import { CATEGORY_COLORS } from "@/types/category";
 import type { Novel } from "@/types/novel";
+import { NovelDetailDrawer } from "../novel-detail-drawer/NovelDetailDrawer";
 
 interface NovelCardProps {
 	novel: Novel;
@@ -22,6 +25,7 @@ export function NovelCard({
 	onTagSearch,
 }: NovelCardProps) {
 	const { getCategoryForTag } = useCategories();
+	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("ja-JP");
 	};
@@ -29,11 +33,6 @@ export function NovelCard({
 	const formatReadingTime = (seconds: number) => {
 		const minutes = Math.ceil(seconds / 60);
 		return `${minutes}分`;
-	};
-
-	const truncateText = (text: string, maxLength: number) => {
-		if (text.length <= maxLength) return text;
-		return `${text.substring(0, maxLength)}...`;
 	};
 
 	const getPixivUrl = (id: string) => {
@@ -68,6 +67,16 @@ export function NovelCard({
 	};
 
 	const { categorizedTags, uncategorizedTags } = sortTagsByCategory(novel.tags);
+
+	const sanitizedDescription = useMemo(() => {
+		const normalizedDescription = novel.description.replace(/\r?\n/g, "<br />");
+
+		return DOMPurify.sanitize(normalizedDescription, {
+			USE_PROFILES: { html: true },
+			ALLOWED_TAGS: ["a", "b", "br", "em", "i", "strong", "u"],
+			ALLOWED_ATTR: ["href", "title", "target", "rel"],
+		});
+	}, [novel.description]);
 
 	return (
 		<Card className="flex flex-col transition-shadow hover:shadow-lg dark:bg-card dark:text-card-foreground">
@@ -116,10 +125,11 @@ export function NovelCard({
 			</CardHeader>
 
 			<CardContent className="flex flex-1 flex-col space-y-4">
-				<div className="line-clamp-3 min-h-[3rem] text-gray-700 text-sm dark:text-gray-300">
-					{truncateText(novel.description, 100)}
-				</div>
-
+				<div
+					className="line-clamp-3 min-h-[3rem] text-gray-700 text-sm dark:text-gray-300"
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: 一旦許可
+					dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+				/>
 				<div className="flex flex-wrap gap-1">
 					{/* カテゴリ付きタグを先に表示 */}
 					{categorizedTags.map(({ tag, category }) => {
@@ -176,10 +186,26 @@ export function NovelCard({
 					</div>
 				</div>
 
-				<Button className="mt-auto w-full" onClick={() => onNovelSelect(novel)}>
+				<Button
+					className="mt-auto w-full md:hidden"
+					onClick={() => setIsDrawerOpen(true)}
+				>
+					詳細を見る
+				</Button>
+				<Button
+					className="mt-auto hidden w-full md:block"
+					onClick={() => onNovelSelect(novel)}
+				>
 					詳細を見る
 				</Button>
 			</CardContent>
+
+			<NovelDetailDrawer
+				novel={novel}
+				isOpen={isDrawerOpen}
+				onClose={() => setIsDrawerOpen(false)}
+				onTagSearch={onTagSearch}
+			/>
 		</Card>
 	);
 }
