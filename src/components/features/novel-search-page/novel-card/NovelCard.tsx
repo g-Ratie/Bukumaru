@@ -39,6 +39,10 @@ export function NovelCard({
 		return `https://www.pixiv.net/novel/show.php?id=${id}`;
 	};
 
+	const getSeriesUrl = (seriesId: string) => {
+		return `https://www.pixiv.net/novel/series/${seriesId}`;
+	};
+
 	const getCategoryColorClasses = (color: string) => {
 		const colorConfig = CATEGORY_COLORS.find((c) => c.value === color);
 		return {
@@ -84,12 +88,32 @@ export function NovelCard({
 				{/* シリーズ情報 */}
 				{novel.seriesTitle && (
 					<div className="mb-2">
-						<Badge
-							variant="outline"
-							className="border-blue-200 bg-blue-50 text-blue-700 text-xs dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
-						>
-							シリーズ: {novel.seriesTitle}
-						</Badge>
+						{novel.seriesId ? (
+							<Badge
+								asChild
+								variant="outline"
+								className="border-blue-200 bg-blue-50 text-blue-700 text-xs dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+							>
+								<a
+									href={getSeriesUrl(novel.seriesId)}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="block"
+									onClick={(event) => {
+										event.stopPropagation();
+									}}
+								>
+									シリーズ: {novel.seriesTitle}
+								</a>
+							</Badge>
+						) : (
+							<Badge
+								variant="outline"
+								className="border-blue-200 bg-blue-50 text-blue-700 text-xs dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+							>
+								シリーズ: {novel.seriesTitle}
+							</Badge>
+						)}
 					</div>
 				)}
 				<CardTitle className="mb-2 line-clamp-2 min-h-[1.5rem] text-lg">
