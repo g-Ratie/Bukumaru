@@ -196,7 +196,7 @@ export function NovelSearchPageContent() {
 					<div className="flex items-center justify-between">
 						<div>
 							<h1 className="mb-2 font-bold text-3xl text-gray-900 dark:text-foreground">
-								pixiv小説ブックマークビューア
+								ぶく丸
 							</h1>
 						</div>
 						<div className="flex items-center gap-2">
