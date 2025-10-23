@@ -1,7 +1,7 @@
 "use client";
 
-import { X } from "lucide-react";
-import { useEffect, useId, useMemo, useState } from "react";
+import { Save, X } from "lucide-react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,8 +17,16 @@ import {
 	getAuthorSuggestions,
 	getTagSuggestions,
 } from "@/lib/novelSearchFilters";
+import {
+	deleteSavedFilter,
+	getAllSavedFilters,
+	saveFilter,
+} from "@/lib/savedFiltersDB";
 import type { Novel } from "@/types/novel";
+import type { SavedFilter, SavedFilterData } from "@/types/savedFilter";
 import type { SearchFilters } from "@/types/search";
+import { SaveFilterDialog } from "./save-filter-dialog/SaveFilterDialog";
+import { SavedFiltersSection } from "./saved-filters-section/SavedFiltersSection";
 
 interface SearchFormProps {
 	filters: SearchFilters;
@@ -33,11 +41,26 @@ export function SearchForm({
 }: SearchFormProps) {
 	const [tagInput, setTagInput] = useState("");
 	const [authorInput, setAuthorInput] = useState(filters.authorName);
+	const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
+	const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 	const authorId = useId();
 	const tagsId = useId();
 
 	const allTags = useMemo(() => getTagSuggestions(novels), [novels]);
 	const allAuthors = useMemo(() => getAuthorSuggestions(novels), [novels]);
+
+	const loadSavedFilters = useCallback(async () => {
+		try {
+			const filters = await getAllSavedFilters();
+			setSavedFilters(filters);
+		} catch (error) {
+			console.error("Failed to load saved filters:", error);
+		}
+	}, []);
+
+	useEffect(() => {
+		loadSavedFilters();
+	}, [loadSavedFilters]);
 
 	// フィルターが外部から変更されたときにauthorInputを同期
 	useEffect(() => {
@@ -98,13 +121,61 @@ export function SearchForm({
 		});
 	};
 
+	const handleSaveFilter = async (name: string) => {
+		const filterData: SavedFilterData = {
+			authorName: filters.authorName,
+			tags: filters.tags,
+			selectedTag: filters.selectedTag,
+			minTextCount: filters.minTextCount,
+			maxTextCount: filters.maxTextCount,
+			sortBy: filters.sortBy,
+			sortOrder: filters.sortOrder,
+		};
+
+		try {
+			await saveFilter(name, filterData);
+			await loadSavedFilters();
+		} catch (error) {
+			console.error("Failed to save filter:", error);
+			throw error;
+		}
+	};
+
+	const handleApplyFilter = (filter: SavedFilter) => {
+		onFilterChange({
+			...filters,
+			...filter.filterData,
+			currentPage: 1,
+		});
+		setAuthorInput(filter.filterData.authorName);
+	};
+
+	const handleDeleteFilter = async (id: string) => {
+		try {
+			await deleteSavedFilter(id);
+			await loadSavedFilters();
+		} catch (error) {
+			console.error("Failed to delete filter:", error);
+		}
+	};
+
 	return (
 		<div className="space-y-6 rounded-lg bg-white p-4 shadow-md sm:p-6 dark:bg-card dark:text-card-foreground">
 			<div className="flex items-center justify-between">
 				<h2 className="font-semibold text-lg sm:text-xl">検索フィルター</h2>
-				<Button variant="outline" size="sm" onClick={handleReset}>
-					リセット
-				</Button>
+				<div className="flex gap-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setIsSaveDialogOpen(true)}
+					>
+						<Save className="mr-2 h-4 w-4" />
+						保存
+					</Button>
+					<Button variant="outline" size="sm" onClick={handleReset}>
+						リセット
+					</Button>
+				</div>
 			</div>
 
 			{/* 作者検索 */}
@@ -307,6 +378,21 @@ export function SearchForm({
 					</SelectContent>
 				</Select>
 			</div>
+
+			{/* 保存済み条件 */}
+			<SavedFiltersSection
+				savedFilters={savedFilters}
+				onApplyFilter={handleApplyFilter}
+				onDeleteFilter={handleDeleteFilter}
+			/>
+
+			{/* 保存ダイアログ */}
+			<SaveFilterDialog
+				isOpen={isSaveDialogOpen}
+				onClose={() => setIsSaveDialogOpen(false)}
+				onSave={handleSaveFilter}
+				existingFilters={savedFilters}
+			/>
 		</div>
 	);
 }
