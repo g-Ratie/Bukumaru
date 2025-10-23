@@ -1,9 +1,15 @@
 "use client";
 
-import { Save, X } from "lucide-react";
+import { FolderOpen, MoreVertical, Save, X } from "lucide-react";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -43,6 +49,7 @@ export function SearchForm({
 	const [authorInput, setAuthorInput] = useState(filters.authorName);
 	const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
 	const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+	const [isLoadDialogOpen, setIsLoadDialogOpen] = useState(false);
 	const authorId = useId();
 	const tagsId = useId();
 
@@ -164,17 +171,26 @@ export function SearchForm({
 			<div className="flex items-center justify-between">
 				<h2 className="font-semibold text-lg sm:text-xl">検索フィルター</h2>
 				<div className="flex gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => setIsSaveDialogOpen(true)}
-					>
-						<Save className="mr-2 h-4 w-4" />
-						保存
-					</Button>
 					<Button variant="outline" size="sm" onClick={handleReset}>
 						リセット
 					</Button>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="outline" size="sm" aria-label="メニュー">
+								<MoreVertical className="h-4 w-4" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuItem onClick={() => setIsLoadDialogOpen(true)}>
+								<FolderOpen className="mr-2 h-4 w-4" />
+								検索条件を読み込む
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => setIsSaveDialogOpen(true)}>
+								<Save className="mr-2 h-4 w-4" />
+								検索条件を保存
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</div>
 
@@ -379,19 +395,21 @@ export function SearchForm({
 				</Select>
 			</div>
 
-			{/* 保存済み条件 */}
-			<SavedFiltersSection
-				savedFilters={savedFilters}
-				onApplyFilter={handleApplyFilter}
-				onDeleteFilter={handleDeleteFilter}
-			/>
-
 			{/* 保存ダイアログ */}
 			<SaveFilterDialog
 				isOpen={isSaveDialogOpen}
 				onClose={() => setIsSaveDialogOpen(false)}
 				onSave={handleSaveFilter}
 				existingFilters={savedFilters}
+			/>
+
+			{/* 読み込みダイアログ */}
+			<SavedFiltersSection
+				isOpen={isLoadDialogOpen}
+				onClose={() => setIsLoadDialogOpen(false)}
+				savedFilters={savedFilters}
+				onApplyFilter={handleApplyFilter}
+				onDeleteFilter={handleDeleteFilter}
 			/>
 		</div>
 	);
