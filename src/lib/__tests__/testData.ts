@@ -18,7 +18,7 @@ export const createMinimalNovelData = (
 	useWordCount: false,
 	description: "テスト説明",
 	isBookmarkable: true,
-	bookmarkData: null,
+	bookmarkData: undefined,
 	bookmarkCount: 10,
 	isOriginal: false,
 	marker: null,
