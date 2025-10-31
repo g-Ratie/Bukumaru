@@ -229,6 +229,7 @@ export function NovelCard({
 				isOpen={isDrawerOpen}
 				onClose={() => setIsDrawerOpen(false)}
 				onTagSearch={onTagSearch}
+				onAuthorSearch={onAuthorSearch}
 			/>
 		</Card>
 	);
