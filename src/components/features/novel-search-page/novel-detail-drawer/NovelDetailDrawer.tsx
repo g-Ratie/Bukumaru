@@ -1,17 +1,9 @@
 "use client";
 
 import DOMPurify from "dompurify";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 import {
 	Drawer,
 	DrawerClose,
@@ -21,6 +13,12 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useCategories } from "@/hooks/useCategories";
 import { CATEGORY_COLORS } from "@/types/category";
 import type { Novel } from "@/types/novel";
@@ -41,7 +39,6 @@ export function NovelDetailDrawer({
 	onAuthorSearch,
 }: NovelDetailDrawerProps) {
 	const { getCategoryForTag } = useCategories();
-	const [isAuthorDialogOpen, setIsAuthorDialogOpen] = useState(false);
 
 	const getPixivUserUrl = (userId: string) => {
 		return `https://www.pixiv.net/users/${userId}`;
@@ -49,13 +46,11 @@ export function NovelDetailDrawer({
 
 	const handleAuthorSearch = () => {
 		onAuthorSearch(novel.userName);
-		setIsAuthorDialogOpen(false);
 		onClose();
 	};
 
 	const handleOpenPixivAuthorPage = () => {
 		window.open(getPixivUserUrl(novel.userId), "_blank", "noopener,noreferrer");
-		setIsAuthorDialogOpen(false);
 	};
 
 	const getCategoryColorClasses = (color: string) => {
@@ -112,13 +107,24 @@ export function NovelDetailDrawer({
 						{/* 作者名 */}
 						<div>
 							<h3 className="mb-1 font-semibold text-sm">作者</h3>
-							<Button
-								variant="link"
-								className="h-auto p-0 font-normal text-base text-gray-700 hover:text-blue-700 dark:text-gray-300 dark:hover:text-blue-300"
-								onClick={() => setIsAuthorDialogOpen(true)}
-							>
-								{novel.userName}
-							</Button>
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button
+										variant="link"
+										className="h-auto p-0 font-normal text-base text-gray-700 hover:text-blue-700 dark:text-gray-300 dark:hover:text-blue-300"
+									>
+										{novel.userName}
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="start" className="w-56">
+									<DropdownMenuItem onClick={handleAuthorSearch}>
+										作者名で検索する
+									</DropdownMenuItem>
+									<DropdownMenuItem onClick={handleOpenPixivAuthorPage}>
+										Pixivの作者ページを開く
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</div>
 
 						{/* 文字数 */}
@@ -184,24 +190,6 @@ export function NovelDetailDrawer({
 					</DrawerFooter>
 				</DrawerContent>
 			</Drawer>
-			<Dialog open={isAuthorDialogOpen} onOpenChange={setIsAuthorDialogOpen}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>作者に関する操作</DialogTitle>
-						<DialogDescription>
-							Pixivの作者ページを開くか、この作者名で再検索できます。
-						</DialogDescription>
-					</DialogHeader>
-					<DialogFooter>
-						<Button variant="outline" onClick={handleAuthorSearch}>
-							作者名で検索する
-						</Button>
-						<Button onClick={handleOpenPixivAuthorPage}>
-							Pixivの作者ページを開く
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
 		</>
 	);
 }
