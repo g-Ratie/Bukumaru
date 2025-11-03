@@ -32,7 +32,7 @@ export function SetupDialog({
 				<DialogHeader>
 					<DialogTitle>小説データの準備</DialogTitle>
 					<DialogDescription>
-						初回利用のためのデータが見つかりませんでした。設定ページでデータを読み込むか、手軽に試せるデモデータを利用できます。
+						データが見つかりませんでした。設定ページでデータを読み込むか、デモデータを利用できます。
 					</DialogDescription>
 				</DialogHeader>
 				<div className="space-y-4 py-2">
