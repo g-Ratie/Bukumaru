@@ -41,7 +41,7 @@ export function SetupDialog({
 						<div className="space-y-1 text-sm">
 							<p className="font-medium">設定ページでデータを読み込む</p>
 							<p className="text-muted-foreground">
-								pixivからエクスポートしたJSONファイルやURLを登録して、実際のデータで検索を開始できます。
+								pixivからエクスポートしたJSONファイルやURLを読み込みます。```
 							</p>
 						</div>
 					</div>
