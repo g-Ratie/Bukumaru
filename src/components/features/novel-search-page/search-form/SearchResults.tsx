@@ -3,13 +3,11 @@
 import { useEffect, useRef } from "react";
 
 import { Pagination } from "@/components/shared/pagination/Pagination";
-import type { Novel } from "@/types/novel";
 import type { SearchResult } from "@/types/search";
 import { NovelCard } from "../novel-card/NovelCard";
 
 interface SearchResultsProps {
 	searchResult: SearchResult;
-	onNovelSelect: (novel: Novel) => void;
 	onAuthorSearch: (authorName: string) => void;
 	onTagSearch: (tag: string) => void;
 	onPageChange: (page: number) => void;
@@ -17,7 +15,6 @@ interface SearchResultsProps {
 
 export function SearchResults({
 	searchResult,
-	onNovelSelect,
 	onAuthorSearch,
 	onTagSearch,
 	onPageChange,
@@ -76,7 +73,6 @@ export function SearchResults({
 					<div key={novel.id}>
 						<NovelCard
 							novel={novel}
-							onNovelSelect={onNovelSelect}
 							onAuthorSearch={onAuthorSearch}
 							onTagSearch={onTagSearch}
 						/>

@@ -2,7 +2,7 @@
 
 import { CollapsibleSearchForm } from "@/components/features/novel-search-page/search-form/CollapsibleSearchForm";
 import { SearchForm } from "@/components/features/novel-search-page/search-form/SearchForm";
-import { SearchResults } from "@/components/features/novel-search-page/search-results/SearchResults";
+import { SearchResults } from "@/components/features/novel-search-page/search-form/SearchResults";
 import type { Novel } from "@/types/novel";
 import type { SearchFilters, SearchResult } from "@/types/search";
 
@@ -12,7 +12,6 @@ type SearchPanelsProps = {
 	novels: Novel[];
 	searchResult: SearchResult;
 	onFilterChange: (filters: SearchFilters) => void;
-	onNovelSelect: (novel: Novel) => void;
 	onAuthorSearch: (authorName: string) => void;
 	onTagSearch: (tag: string) => void;
 	onPageChange: (page: number) => void;
@@ -24,7 +23,6 @@ export function SearchPanels({
 	novels,
 	searchResult,
 	onFilterChange,
-	onNovelSelect,
 	onAuthorSearch,
 	onTagSearch,
 	onPageChange,
@@ -39,7 +37,6 @@ export function SearchPanels({
 				/>
 				<SearchResults
 					searchResult={searchResult}
-					onNovelSelect={onNovelSelect}
 					onAuthorSearch={onAuthorSearch}
 					onTagSearch={onTagSearch}
 					onPageChange={onPageChange}
@@ -60,7 +57,6 @@ export function SearchPanels({
 			<div className="lg:col-span-3">
 				<SearchResults
 					searchResult={searchResult}
-					onNovelSelect={onNovelSelect}
 					onAuthorSearch={onAuthorSearch}
 					onTagSearch={onTagSearch}
 					onPageChange={onPageChange}
