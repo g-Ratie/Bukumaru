@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { EmptyState } from "@/components/features/novel-search-page/empty-state/EmptyState";
-import { NovelDetail } from "@/components/features/novel-search-page/novel-detail/NovelDetail";
 import { PageHeader } from "@/components/features/novel-search-page/page-header/PageHeader";
 import { SearchPanels } from "@/components/features/novel-search-page/search-form/SearchPanels";
 import { SetupDialog } from "@/components/features/novel-search-page/setup-dialog/SetupDialog";
@@ -24,7 +23,6 @@ export function NovelSearchPageContent() {
 		currentPage: 1,
 		totalPages: 1,
 	});
-	const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSetupDialogOpen, setIsSetupDialogOpen] = useState(false);
 	const [isApplyingDemoData, setIsApplyingDemoData] = useState(false);
@@ -81,21 +79,12 @@ export function NovelSearchPageContent() {
 		});
 	};
 
-	const handleNovelSelect = (novel: Novel) => {
-		setSelectedNovel(novel);
-	};
-
-	const handleNovelClose = () => {
-		setSelectedNovel(null);
-	};
-
 	const handleAuthorSearch = (authorName: string) => {
 		setFilters((prev) => ({
 			...prev,
 			authorName,
 			currentPage: 1,
 		}));
-		setSelectedNovel(null);
 	};
 
 	const handleTagSearch = (tag: string) => {
@@ -107,7 +96,6 @@ export function NovelSearchPageContent() {
 				currentPage: 1,
 			};
 		});
-		setSelectedNovel(null);
 	};
 
 	const handlePageChange = (page: number) => {
@@ -123,7 +111,6 @@ export function NovelSearchPageContent() {
 			const demoData = createDemoNovelData();
 			saveNovelData(demoData);
 			setNovels(demoData.novels);
-			setSelectedNovel(null);
 			setIsSetupDialogOpen(false);
 		} finally {
 			setIsApplyingDemoData(false);
@@ -153,19 +140,9 @@ export function NovelSearchPageContent() {
 						novels={novels}
 						searchResult={searchResult}
 						onFilterChange={handleFilterChange}
-						onNovelSelect={handleNovelSelect}
 						onAuthorSearch={handleAuthorSearch}
 						onTagSearch={handleTagSearch}
 						onPageChange={handlePageChange}
-					/>
-				)}
-
-				{selectedNovel && (
-					<NovelDetail
-						novel={selectedNovel}
-						onClose={handleNovelClose}
-						onAuthorSearch={handleAuthorSearch}
-						onTagSearch={handleTagSearch}
 					/>
 				)}
 			</div>

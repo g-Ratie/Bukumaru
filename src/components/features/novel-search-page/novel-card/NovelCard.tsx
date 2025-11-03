@@ -10,14 +10,12 @@ import { CardHeader } from "./components/card-header/CardHeader";
 
 interface NovelCardProps {
 	novel: Novel;
-	onNovelSelect: (novel: Novel) => void;
 	onAuthorSearch: (authorName: string) => void;
 	onTagSearch: (tag: string) => void;
 }
 
 export function NovelCard({
 	novel,
-	onNovelSelect,
 	onAuthorSearch,
 	onTagSearch,
 }: NovelCardProps) {
@@ -45,16 +43,7 @@ export function NovelCard({
 			/>
 
 			<div className="px-6 pb-6">
-				<Button
-					className="w-full md:hidden"
-					onClick={() => setIsDrawerOpen(true)}
-				>
-					詳細を見る
-				</Button>
-				<Button
-					className="hidden w-full md:block"
-					onClick={() => onNovelSelect(novel)}
-				>
+				<Button className="w-full" onClick={() => setIsDrawerOpen(true)}>
 					詳細を見る
 				</Button>
 			</div>

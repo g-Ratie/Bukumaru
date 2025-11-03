@@ -17,6 +17,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import type { Novel } from "@/types/novel";
 import { NovelTags } from "../novel-card/components/novel-tags/NovelTags";
 import { getPixivUserURL, sanitizeNovelDescription } from "../utils";
@@ -36,6 +37,7 @@ export function NovelDetailDrawer({
 	onTagSearch,
 	onAuthorSearch,
 }: NovelDetailDrawerProps) {
+	const isDesktop = useMediaQuery("(min-width: 768px)");
 	const sanitizedDescription = useMemo(
 		() => sanitizeNovelDescription(novel.description),
 		[novel.description],
@@ -56,7 +58,11 @@ export function NovelDetailDrawer({
 	};
 
 	return (
-		<Drawer open={isOpen} onOpenChange={onClose}>
+		<Drawer
+			open={isOpen}
+			onOpenChange={onClose}
+			direction={isDesktop ? "right" : "bottom"}
+		>
 			<DrawerContent>
 				<DrawerHeader>
 					<DrawerTitle className="text-left">{novel.title}</DrawerTitle>
@@ -65,7 +71,7 @@ export function NovelDetailDrawer({
 					</DrawerDescription>
 				</DrawerHeader>
 
-				<div className="max-h-[60vh] space-y-4 overflow-y-auto px-4 pb-4">
+				<div className="flex-1 space-y-4 overflow-y-auto px-4 pb-4">
 					{/* 作者名 */}
 					<div>
 						<h3 className="mb-1 font-semibold text-sm">作者</h3>
