@@ -6,7 +6,6 @@ import {
 	ExternalLinkIcon,
 	EyeIcon,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -16,6 +15,12 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import type { Novel } from "@/types/novel";
+import { NovelTags } from "../novel-card/components/novel-tags/NovelTags";
+import {
+	formatDateWithTime,
+	formatReadingTime,
+	getPixivNovelURL,
+} from "../utils";
 
 interface NovelDetailProps {
 	novel: Novel;
@@ -30,23 +35,9 @@ export function NovelDetail({
 	onAuthorSearch,
 	onTagSearch,
 }: NovelDetailProps) {
-	const formatDate = (dateString: string) => {
-		return new Date(dateString).toLocaleDateString("ja-JP", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	};
-
-	const formatReadingTime = (seconds: number) => {
-		const minutes = Math.ceil(seconds / 60);
-		return `${minutes}分`;
-	};
-
-	const getPixivUrl = (id: string) => {
-		return `https://www.pixiv.net/novel/show.php?id=${id}`;
+	const handleTagClick = (tag: string) => {
+		onTagSearch(tag);
+		onClose();
 	};
 
 	return (
@@ -106,11 +97,11 @@ export function NovelDetail({
 							<CardContent className="space-y-3">
 								<div className="flex justify-between">
 									<span className="text-gray-600">作成日</span>
-									<span>{formatDate(novel.createDate)}</span>
+									<span>{formatDateWithTime(novel.createDate)}</span>
 								</div>
 								<div className="flex justify-between">
 									<span className="text-gray-600">更新日</span>
-									<span>{formatDate(novel.updateDate)}</span>
+									<span>{formatDateWithTime(novel.updateDate)}</span>
 								</div>
 
 								<div className="flex justify-between">
@@ -143,21 +134,7 @@ export function NovelDetail({
 							<CardTitle className="text-lg">タグ</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<div className="flex flex-wrap gap-2">
-								{novel.tags.map((tag) => (
-									<Badge
-										key={tag}
-										variant="secondary"
-										className="cursor-pointer transition-opacity hover:opacity-80"
-										onClick={() => {
-											onTagSearch(tag);
-											onClose();
-										}}
-									>
-										{tag}
-									</Badge>
-								))}
-							</div>
+							<NovelTags tags={novel.tags} onTagClick={handleTagClick} />
 						</CardContent>
 					</Card>
 
@@ -179,7 +156,7 @@ export function NovelDetail({
 						</div>
 
 						<Button
-							onClick={() => window.open(getPixivUrl(novel.id), "_blank")}
+							onClick={() => window.open(getPixivNovelURL(novel.id), "_blank")}
 							className="flex items-center gap-2"
 						>
 							<ExternalLinkIcon size={16} />

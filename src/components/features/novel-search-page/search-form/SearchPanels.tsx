@@ -2,7 +2,7 @@
 
 import { CollapsibleSearchForm } from "@/components/features/novel-search-page/search-form/CollapsibleSearchForm";
 import { SearchForm } from "@/components/features/novel-search-page/search-form/SearchForm";
-import { SearchResults } from "@/components/features/novel-search-page/search-results/SearchResults";
+import { SearchResults } from "@/components/features/novel-search-page/search-form/SearchResults";
 import type { Novel } from "@/types/novel";
 import type { SearchFilters, SearchResult } from "@/types/search";
 

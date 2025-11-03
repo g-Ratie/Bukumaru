@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { EmptyState } from "@/components/features/novel-search-page/empty-state/EmptyState";
-import { LoadingState } from "@/components/features/novel-search-page/loading-state/LoadingState";
 import { NovelDetail } from "@/components/features/novel-search-page/novel-detail/NovelDetail";
 import { PageHeader } from "@/components/features/novel-search-page/page-header/PageHeader";
-import { SearchPanels } from "@/components/features/novel-search-page/search-panels/SearchPanels";
+import { SearchPanels } from "@/components/features/novel-search-page/search-form/SearchPanels";
 import { SetupDialog } from "@/components/features/novel-search-page/setup-dialog/SetupDialog";
+import { LoadingState } from "@/components/shared/loading-state/LoadingState";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useURLSearchParams } from "@/hooks/useURLSearchParams";
 import { createDemoNovelData } from "@/lib/demoNovelData";
