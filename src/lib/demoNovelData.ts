@@ -225,7 +225,9 @@ function createDemoNovel(index: number): Novel {
 		xRestrict: 0,
 		restrict: 0,
 		url: `https://www.pixiv.net/novel/show.php?id=${id}`,
-		tags: [genre.ja, theme.ja, `デモ${padNumber((index % 10) + 1, 2)}`],
+		tags: [
+			...new Set([genre.ja, theme.ja, `デモ${padNumber((index % 10) + 1, 2)}`]),
+		],
 		userId,
 		userName,
 		profileImageUrl,
