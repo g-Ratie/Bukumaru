@@ -17,13 +17,13 @@ export function NovelSeriesBadge({
 			<Badge
 				asChild
 				variant="outline"
-				className="border-blue-200 bg-blue-50 text-blue-700 text-xs dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+				className="max-w-full whitespace-normal break-words border-blue-200 bg-blue-50 text-blue-700 text-xs dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
 			>
 				<a
 					href={getPixivSeriesURL(seriesId)}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="block"
+					className="block break-words"
 					onClick={(event) => {
 						event.stopPropagation();
 					}}
@@ -37,7 +37,7 @@ export function NovelSeriesBadge({
 	return (
 		<Badge
 			variant="outline"
-			className="border-blue-200 bg-blue-50 text-blue-700 text-xs dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+			className="max-w-full whitespace-normal break-words border-blue-200 bg-blue-50 text-blue-700 text-xs dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
 		>
 			シリーズ: {seriesTitle}
 		</Badge>

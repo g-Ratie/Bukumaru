@@ -39,12 +39,13 @@ export function CardHeader({
 					<NovelSeriesBadge seriesTitle={seriesTitle} seriesId={seriesId} />
 				</div>
 			)}
-			<CardTitle className="mb-2 line-clamp-2 min-h-[1.5rem] text-lg">
+			<CardTitle className="mb-2 line-clamp-2 min-h-[1.5rem] break-words text-lg">
 				<a
 					href={getPixivNovelURL(novelId)}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="cursor-pointer text-gray-900 hover:text-blue-800 hover:underline dark:text-gray-100 dark:hover:text-blue-400"
+					className="cursor-pointer break-words text-gray-900 hover:text-blue-800 hover:underline dark:text-gray-100 dark:hover:text-blue-400"
+					style={{ wordBreak: "break-word" }}
 					onClick={(e) => e.stopPropagation()}
 				>
 					{title}
