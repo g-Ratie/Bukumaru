@@ -101,6 +101,11 @@ const BASE_UPDATED_AT = new Date(Date.UTC(2024, 0, 1, 3, 0, 0));
 
 const PROFILE_BASE_URL = "https://i.pximg.net/user-profile/img/2024";
 
+const LONG_TITLE_DEMO =
+        "これでもかというほど長い長いタイトルで改行挙動を徹底的に検証するためのデモンストレーション小説タイトル";
+const LONG_SERIES_TITLE_DEMO =
+        "とてつもなく長いシリーズ名がどのように表示領域を圧迫するのかを徹底的に観察するためのデモシリーズ名その一";
+
 function padNumber(value: number, length: number): string {
 	return value.toString().padStart(length, "0");
 }
@@ -255,8 +260,15 @@ function createDemoNovel(index: number): Novel {
 }
 
 const DEMO_NOVELS: Novel[] = Array.from({ length: 100 }, (_, index) =>
-	createDemoNovel(index),
+        createDemoNovel(index),
 );
+
+DEMO_NOVELS[0] = {
+        ...DEMO_NOVELS[0],
+        title: LONG_TITLE_DEMO,
+        seriesTitle: LONG_SERIES_TITLE_DEMO,
+        seriesId: DEMO_NOVELS[0].seriesId ?? "series-demo-01",
+};
 
 export function createDemoNovelData(): NovelDataStorage {
 	return {
