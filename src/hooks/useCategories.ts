@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { CategorySettings, TagCategory } from "@/types/category";
 import {
 	addCategory as addCategoryToStorage,
 	deleteCategory as deleteCategoryFromStorage,
 	getCategorySettings,
 	updateCategory as updateCategoryInStorage,
-} from "@/lib/categoryStorage";
-import type { CategorySettings, TagCategory } from "@/types/category";
+} from "@/utils/category/categoryStorage";
 
 export function useCategories() {
 	const [settings, setSettings] = useState<CategorySettings>({
@@ -15,15 +15,23 @@ export function useCategories() {
 	});
 	const [isLoaded, setIsLoaded] = useState(false);
 
-	// ローカルストレージから設定を読み込み
 	useEffect(() => {
-		const loadedSettings = getCategorySettings();
-		setSettings(loadedSettings);
-		setIsLoaded(true);
+		let isMounted = true;
+		const load = async () => {
+			const loadedSettings = await getCategorySettings();
+			if (!isMounted) return;
+			setSettings(loadedSettings);
+			setIsLoaded(true);
+		};
+
+		void load();
+		return () => {
+			isMounted = false;
+		};
 	}, []);
 
-	const addCategory = useCallback((category: Omit<TagCategory, "id">) => {
-		const newCategory = addCategoryToStorage(category);
+	const addCategory = useCallback(async (category: Omit<TagCategory, "id">) => {
+		const newCategory = await addCategoryToStorage(category);
 		setSettings((prev) => ({
 			categories: [...prev.categories, newCategory],
 		}));
@@ -31,8 +39,8 @@ export function useCategories() {
 	}, []);
 
 	const updateCategory = useCallback(
-		(id: string, updates: Partial<Omit<TagCategory, "id">>) => {
-			updateCategoryInStorage(id, updates);
+		async (id: string, updates: Partial<Omit<TagCategory, "id">>) => {
+			await updateCategoryInStorage(id, updates);
 			setSettings((prev) => ({
 				categories: prev.categories.map((cat) =>
 					cat.id === id ? { ...cat, ...updates } : cat,
@@ -42,15 +50,15 @@ export function useCategories() {
 		[],
 	);
 
-	const deleteCategory = useCallback((id: string) => {
-		deleteCategoryFromStorage(id);
+	const deleteCategory = useCallback(async (id: string) => {
+		await deleteCategoryFromStorage(id);
 		setSettings((prev) => ({
 			categories: prev.categories.filter((cat) => cat.id !== id),
 		}));
 	}, []);
 
 	const addTagToCategory = useCallback(
-		(categoryId: string, tag: string) => {
+		async (categoryId: string, tag: string) => {
 			const category = settings.categories.find((cat) => cat.id === categoryId);
 			if (!category) return;
 
@@ -58,18 +66,18 @@ export function useCategories() {
 				(tag, index, arr) => arr.indexOf(tag) === index,
 			);
 
-			updateCategory(categoryId, { tags: updatedTags });
+			await updateCategory(categoryId, { tags: updatedTags });
 		},
 		[settings.categories, updateCategory],
 	);
 
 	const removeTagFromCategory = useCallback(
-		(categoryId: string, tag: string) => {
+		async (categoryId: string, tag: string) => {
 			const category = settings.categories.find((cat) => cat.id === categoryId);
 			if (!category) return;
 
 			const updatedTags = category.tags.filter((t) => t !== tag);
-			updateCategory(categoryId, { tags: updatedTags });
+			await updateCategory(categoryId, { tags: updatedTags });
 		},
 		[settings.categories, updateCategory],
 	);

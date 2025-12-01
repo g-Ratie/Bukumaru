@@ -1,6 +1,7 @@
 "use client";
 
 import type { Novel } from "@/types/novel";
+import { deleteValue, getValue, setValue } from "../../lib/indexedDb";
 import { parseNovelData } from "./novelDataParser";
 
 const STORAGE_KEY = "novel-data-source";
@@ -13,15 +14,34 @@ export interface NovelDataStorage {
 	updatedAt: string;
 }
 
-export function getStoredNovelData(): NovelDataStorage | null {
+async function migrateFromLocalStorage(): Promise<NovelDataStorage | null> {
+	if (typeof window === "undefined") return null;
+
+	try {
+		const stored = localStorage.getItem(STORAGE_KEY);
+		if (stored) {
+			const parsed = JSON.parse(stored) as NovelDataStorage;
+			await setValue<NovelDataStorage>(STORAGE_KEY, parsed);
+			localStorage.removeItem(STORAGE_KEY);
+			return parsed;
+		}
+	} catch (error) {
+		console.warn("保存された小説データの移行に失敗しました:", error);
+	}
+
+	return null;
+}
+
+export async function getStoredNovelData(): Promise<NovelDataStorage | null> {
 	if (typeof window === "undefined") {
 		return null;
 	}
 
 	try {
-		const stored = localStorage.getItem(STORAGE_KEY);
-		if (stored) {
-			const data = JSON.parse(stored);
+		const stored = await getValue<NovelDataStorage>(STORAGE_KEY);
+
+		const data = stored ?? (await migrateFromLocalStorage());
+		if (data) {
 			return {
 				...data,
 				novels: parseNovelData(data.novels),
@@ -34,13 +54,13 @@ export function getStoredNovelData(): NovelDataStorage | null {
 	return null;
 }
 
-export function saveNovelData(data: NovelDataStorage): void {
+export async function saveNovelData(data: NovelDataStorage): Promise<void> {
 	if (typeof window === "undefined") {
 		return;
 	}
 
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+		await setValue<NovelDataStorage>(STORAGE_KEY, data);
 	} catch (error) {
 		console.warn("小説データの保存に失敗しました:", error);
 		throw new Error(
@@ -49,13 +69,13 @@ export function saveNovelData(data: NovelDataStorage): void {
 	}
 }
 
-export function clearStoredNovelData(): void {
+export async function clearStoredNovelData(): Promise<void> {
 	if (typeof window === "undefined") {
 		return;
 	}
 
 	try {
-		localStorage.removeItem(STORAGE_KEY);
+		await deleteValue(STORAGE_KEY);
 	} catch (error) {
 		console.warn("保存された小説データのクリアに失敗しました:", error);
 	}
@@ -86,7 +106,7 @@ export async function saveNovelDataFromUrl(url: string): Promise<void> {
 		// Content-Lengthをチェック
 		const contentLength = response.headers.get("content-length");
 		const sizeInMB = contentLength
-			? parseInt(contentLength) / (1024 * 1024)
+			? parseInt(contentLength, 10) / (1024 * 1024)
 			: 0;
 
 		if (sizeInMB > 10) {
@@ -110,8 +130,8 @@ export async function saveNovelDataFromUrl(url: string): Promise<void> {
 				const lineMatch = errorMsg.match(/line (\d+)/);
 				const columnMatch = errorMsg.match(/column (\d+)/);
 				if (lineMatch && columnMatch) {
-					const line = parseInt(lineMatch[1]);
-					const column = parseInt(columnMatch[1]);
+					const line = parseInt(lineMatch[1], 10);
+					const column = parseInt(columnMatch[1], 10);
 					const lines = text.split("\n");
 					if (lines[line - 1]) {
 						const problemLine = lines[line - 1];
@@ -132,7 +152,7 @@ export async function saveNovelDataFromUrl(url: string): Promise<void> {
 
 		const novels = parseNovelData(jsonData);
 
-		// LocalStorage容量チェック
+		// IndexedDB容量チェック（目安）
 		const storageData: NovelDataStorage = {
 			novels,
 			sourceType: "url",
@@ -146,11 +166,11 @@ export async function saveNovelDataFromUrl(url: string): Promise<void> {
 
 		if (dataSizeInMB > 5) {
 			throw new Error(
-				`データサイズが大きすぎます (${dataSizeInMB.toFixed(2)}MB)。LocalStorageの制限を超える可能性があります。`,
+				`データサイズが大きすぎます (${dataSizeInMB.toFixed(2)}MB)。ブラウザの保存容量の制限を超える可能性があります。`,
 			);
 		}
 
-		saveNovelData(storageData);
+		await saveNovelData(storageData);
 	} catch (error) {
 		// エラーメッセージをより詳細に
 		if (
@@ -188,8 +208,8 @@ export async function saveNovelDataFromFile(file: File): Promise<void> {
 				const lineMatch = errorMsg.match(/line (\d+)/);
 				const columnMatch = errorMsg.match(/column (\d+)/);
 				if (lineMatch && columnMatch) {
-					const line = parseInt(lineMatch[1]);
-					const column = parseInt(columnMatch[1]);
+					const line = parseInt(lineMatch[1], 10);
+					const column = parseInt(columnMatch[1], 10);
 					const lines = text.split("\n");
 					if (lines[line - 1]) {
 						const problemLine = lines[line - 1];
@@ -223,11 +243,11 @@ export async function saveNovelDataFromFile(file: File): Promise<void> {
 
 		if (dataSizeInMB > 5) {
 			throw new Error(
-				`データサイズが大きすぎます (${dataSizeInMB.toFixed(2)}MB)。LocalStorageの制限を超える可能性があります。`,
+				`データサイズが大きすぎます (${dataSizeInMB.toFixed(2)}MB)。ブラウザの保存容量の制限を超える可能性があります。`,
 			);
 		}
 
-		saveNovelData(storageData);
+		await saveNovelData(storageData);
 	} catch (error) {
 		throw new Error(
 			`ファイルの読み込みに失敗しました: ${error instanceof Error ? error.message : "不明なエラー"}`,

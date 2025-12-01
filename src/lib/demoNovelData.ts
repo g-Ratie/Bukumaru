@@ -1,5 +1,5 @@
 import type { Novel } from "@/types/novel";
-import type { NovelDataStorage } from "./novelDataStorage";
+import type { NovelDataStorage } from "../utils/novelData/novelDataStorage";
 
 const GENRES: Array<{
 	readonly ja: string;

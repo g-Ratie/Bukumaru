@@ -19,18 +19,18 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import type { Novel } from "@/types/novel";
+import type { SavedFilter, SavedFilterData } from "@/types/savedFilter";
+import type { SearchFilters } from "@/types/search";
 import {
 	getAuthorSuggestions,
 	getTagSuggestions,
-} from "@/lib/novelSearchFilters";
+} from "@/utils/filter/novelSearchFilters";
 import {
 	deleteSavedFilter,
 	getAllSavedFilters,
 	saveFilter,
-} from "@/lib/savedFiltersDB";
-import type { Novel } from "@/types/novel";
-import type { SavedFilter, SavedFilterData } from "@/types/savedFilter";
-import type { SearchFilters } from "@/types/search";
+} from "@/utils/filter/savedFiltersDB";
 import { SaveFilterDialog } from "./save-filter-dialog/SaveFilterDialog";
 import { SavedFiltersSection } from "./saved-filters-section/SavedFiltersSection";
 
@@ -96,7 +96,7 @@ export function SearchForm({
 		});
 	};
 	const handleTextCountChange = (type: "min" | "max", value: string) => {
-		const numValue = parseInt(value) || 0;
+		const numValue = parseInt(value, 10) || 0;
 		onFilterChange({
 			...filters,
 			[type === "min" ? "minTextCount" : "maxTextCount"]: numValue,

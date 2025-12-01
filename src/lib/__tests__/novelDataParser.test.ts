@@ -4,7 +4,7 @@ import {
 	loadNovelData,
 	parseNovelData,
 	parseNovelItem,
-} from "../novelDataParser";
+} from "../../utils/novelData/novelDataParser";
 import { createMinimalNovelData } from "./testData";
 
 describe("parseNovelItem", () => {

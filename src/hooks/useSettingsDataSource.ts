@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-
+import type { Novel } from "@/types/novel";
 import {
 	clearStoredNovelData,
 	getStoredNovelData,
 	saveNovelDataFromFile,
 	saveNovelDataFromUrl,
-} from "@/lib/novelDataStorage";
-import type { Novel } from "@/types/novel";
+} from "@/utils/novelData/novelDataStorage";
 
 export type DataSourceType = "url" | "file" | "default" | "demo";
 
@@ -33,9 +32,9 @@ export function useSettingsDataSource() {
 	const [uploadError, setUploadError] = useState<string | null>(null);
 	const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-	const loadNovels = useCallback(() => {
+	const loadNovels = useCallback(async () => {
 		setIsInitialLoading(true);
-		const storedData = getStoredNovelData();
+		const storedData = await getStoredNovelData();
 
 		if (storedData) {
 			setNovels(storedData.novels);
@@ -54,7 +53,7 @@ export function useSettingsDataSource() {
 	}, []);
 
 	useEffect(() => {
-		loadNovels();
+		void loadNovels();
 	}, [loadNovels]);
 
 	const handleFileUpload = useCallback(
@@ -129,9 +128,9 @@ export function useSettingsDataSource() {
 		}
 	}, [dataSource, loadNovels]);
 
-	const handleClearData = useCallback(() => {
-		clearStoredNovelData();
-		loadNovels();
+	const handleClearData = useCallback(async () => {
+		await clearStoredNovelData();
+		await loadNovels();
 	}, [loadNovels]);
 
 	return {

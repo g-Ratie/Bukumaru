@@ -1,7 +1,7 @@
 "use client";
 
 import { BookmarkIcon, ClockIcon, EyeIcon } from "lucide-react";
-import { formatReadingTime } from "@/lib/novelFormatters";
+import { formatReadingTime } from "@/utils/novelData/novelFormatters";
 
 interface NovelStatsProps {
 	textCount: number;

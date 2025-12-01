@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { getCategoryColorClasses } from "../categoryColors";
+import { getCategoryColorClasses } from "../../utils/category/categoryColors";
 
 describe("getCategoryColorClasses", () => {
 	test("should return correct classes for blue color", () => {
