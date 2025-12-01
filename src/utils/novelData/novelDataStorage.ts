@@ -1,10 +1,15 @@
 "use client";
 
 import type { Novel } from "@/types/novel";
-import { deleteValue, getValue, setValue } from "../../lib/indexedDb";
+import {
+	clearNovelDataMeta,
+	db,
+	getAllNovels,
+	getNovelDataMeta,
+	replaceNovels,
+	setNovelDataMeta,
+} from "../../lib/indexedDb";
 import { parseNovelData } from "./novelDataParser";
-
-const STORAGE_KEY = "novel-data-source";
 
 export interface NovelDataStorage {
 	novels: Novel[];
@@ -14,39 +19,21 @@ export interface NovelDataStorage {
 	updatedAt: string;
 }
 
-async function migrateFromLocalStorage(): Promise<NovelDataStorage | null> {
-	if (typeof window === "undefined") return null;
-
-	try {
-		const stored = localStorage.getItem(STORAGE_KEY);
-		if (stored) {
-			const parsed = JSON.parse(stored) as NovelDataStorage;
-			await setValue<NovelDataStorage>(STORAGE_KEY, parsed);
-			localStorage.removeItem(STORAGE_KEY);
-			return parsed;
-		}
-	} catch (error) {
-		console.warn("保存された小説データの移行に失敗しました:", error);
-	}
-
-	return null;
-}
-
 export async function getStoredNovelData(): Promise<NovelDataStorage | null> {
 	if (typeof window === "undefined") {
 		return null;
 	}
 
 	try {
-		const stored = await getValue<NovelDataStorage>(STORAGE_KEY);
+		await db.open();
+		const meta = await getNovelDataMeta();
+		if (!meta) return null;
 
-		const data = stored ?? (await migrateFromLocalStorage());
-		if (data) {
-			return {
-				...data,
-				novels: parseNovelData(data.novels),
-			};
-		}
+		const novels = await getAllNovels();
+		return {
+			...meta,
+			novels: parseNovelData(novels),
+		};
 	} catch (error) {
 		console.warn("保存された小説データの読み込みに失敗しました:", error);
 	}
@@ -60,7 +47,17 @@ export async function saveNovelData(data: NovelDataStorage): Promise<void> {
 	}
 
 	try {
-		await setValue<NovelDataStorage>(STORAGE_KEY, data);
+		await db.open();
+		await db.transaction("rw", db.novels, db.novelDataMeta, async () => {
+			await replaceNovels(data.novels);
+			await setNovelDataMeta({
+				id: "current",
+				sourceType: data.sourceType,
+				sourceUrl: data.sourceUrl,
+				fileName: data.fileName,
+				updatedAt: data.updatedAt,
+			});
+		});
 	} catch (error) {
 		console.warn("小説データの保存に失敗しました:", error);
 		throw new Error(
@@ -75,7 +72,11 @@ export async function clearStoredNovelData(): Promise<void> {
 	}
 
 	try {
-		await deleteValue(STORAGE_KEY);
+		await db.open();
+		await db.transaction("rw", db.novels, db.novelDataMeta, async () => {
+			await db.novels.clear();
+			await clearNovelDataMeta();
+		});
 	} catch (error) {
 		console.warn("保存された小説データのクリアに失敗しました:", error);
 	}

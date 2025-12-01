@@ -42,39 +42,6 @@ describe("getCategorySettings", () => {
 
 		expect(actual).toEqual(storedSettings);
 	});
-
-	test("should return empty categories when stored data is invalid JSON", async () => {
-		localStorage.setItem("novel-search-categories", "invalid json");
-
-		const actual = await getCategorySettings();
-
-		const expected: CategorySettings = { categories: [] };
-		expect(actual).toEqual(expected);
-	});
-
-	test("should migrate data from localStorage to IndexedDB", async () => {
-		const storedSettings: CategorySettings = {
-			categories: [
-				{
-					id: "1",
-					name: "移行カテゴリ",
-					color: "blue",
-					tags: ["タグ"],
-				},
-			],
-		};
-		localStorage.setItem(
-			"novel-search-categories",
-			JSON.stringify(storedSettings),
-		);
-
-		const actual = await getCategorySettings();
-
-		expect(actual).toEqual(storedSettings);
-		const dbValue = await db.keyValues.get("novel-search-categories");
-		expect(dbValue?.value).toEqual(storedSettings);
-		expect(localStorage.getItem("novel-search-categories")).toBeNull();
-	});
 });
 
 describe("saveCategorySettings", () => {
@@ -92,8 +59,8 @@ describe("saveCategorySettings", () => {
 
 		await saveCategorySettings(settings);
 
-		const stored = await db.keyValues.get("novel-search-categories");
-		expect(stored?.value).toEqual(settings);
+		const stored = await db.categories.toArray();
+		expect(stored).toEqual(settings.categories);
 	});
 });
 

@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 		// レスポンスサイズをチェック
 		const contentLength = response.headers.get("content-length");
 		const sizeInMB = contentLength
-			? parseInt(contentLength) / (1024 * 1024)
+			? parseInt(contentLength, 10) / (1024 * 1024)
 			: 0;
 
 		if (sizeInMB > 10) {

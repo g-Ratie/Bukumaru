@@ -9,7 +9,6 @@ import {
 import * as indexedDb from "../indexedDb";
 import { createMinimalNovelData } from "./testData";
 
-const STORAGE_KEY = "novel-data-source";
 const { db } = indexedDb;
 
 beforeEach(async () => {
@@ -52,14 +51,6 @@ describe("getStoredNovelData", () => {
 		expect(actual?.sourceType).toBe("file");
 		expect(actual?.fileName).toBe("test.json");
 	});
-
-	test("should return null when stored data is invalid JSON", async () => {
-		localStorage.setItem(STORAGE_KEY, "invalid json");
-
-		const actual = await getStoredNovelData();
-
-		expect(actual).toBe(null);
-	});
 });
 
 describe("saveNovelData", () => {
@@ -82,8 +73,15 @@ describe("saveNovelData", () => {
 
 		await saveNovelData(data);
 
-		const stored = await db.keyValues.get(STORAGE_KEY);
-		expect(stored?.value).toEqual(data);
+		const storedMeta = await db.novelDataMeta.get("current");
+		const storedNovels = await db.novels.toArray();
+		expect(storedMeta).toEqual({
+			id: "current",
+			sourceType: "file",
+			fileName: "test.json",
+			updatedAt: "2024-01-01T00:00:00+09:00",
+		});
+		expect(storedNovels).toEqual(data.novels);
 	});
 
 	test("should throw error when IndexedDB save fails", async () => {
@@ -104,7 +102,7 @@ describe("saveNovelData", () => {
 		};
 
 		vi.spyOn(db, "open").mockResolvedValue(db);
-		vi.spyOn(indexedDb, "setValue").mockRejectedValue(
+		vi.spyOn(indexedDb, "replaceNovels").mockRejectedValue(
 			new Error("QuotaExceededError"),
 		);
 
@@ -136,8 +134,10 @@ describe("clearStoredNovelData", () => {
 
 		await clearStoredNovelData();
 
-		const stored = await db.keyValues.get(STORAGE_KEY);
-		expect(stored).toBeUndefined();
+		const storedMeta = await db.novelDataMeta.get("current");
+		const storedNovels = await db.novels.toArray();
+		expect(storedMeta).toBeUndefined();
+		expect(storedNovels).toHaveLength(0);
 	});
 });
 
