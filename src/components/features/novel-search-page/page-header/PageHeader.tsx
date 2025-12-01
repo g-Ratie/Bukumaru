@@ -14,6 +14,9 @@ export function PageHeader() {
 					<h1 className="mb-2 font-bold text-3xl text-gray-900 dark:text-foreground">
 						ぶく丸
 					</h1>
+					<p className="text-gray-600 text-sm dark:text-gray-400">
+						pixiv小説ブックマークビューワー
+					</p>
 				</div>
 				<div className="flex items-center gap-2">
 					<Link href="/settings">
