@@ -3,6 +3,54 @@
 import type { CategorySettings, TagCategory } from "@/types/category";
 import { db, getAllCategories, replaceCategories } from "../../lib/indexedDb";
 
+const LEGACY_CATEGORY_STORAGE_KEY = "novel-search-categories";
+
+function readLegacyCategories(): TagCategory[] | null {
+	const legacyData = localStorage.getItem(LEGACY_CATEGORY_STORAGE_KEY);
+	if (!legacyData) return null;
+
+	try {
+		const parsed = JSON.parse(legacyData) as
+			| TagCategory[]
+			| { categories?: TagCategory[] };
+
+		const categories = Array.isArray(parsed)
+			? parsed
+			: Array.isArray(parsed.categories)
+				? parsed.categories
+				: null;
+
+		if (!categories || categories.length === 0) return null;
+
+		const isValidCategory = (category: TagCategory) =>
+			typeof category.id === "string" &&
+			typeof category.name === "string" &&
+			typeof category.color === "string" &&
+			Array.isArray(category.tags) &&
+			category.tags.every((tag) => typeof tag === "string");
+
+		return categories.every(isValidCategory) ? categories : null;
+	} catch (error) {
+		console.warn("旧カテゴリ設定のパースに失敗しました:", error);
+		return null;
+	}
+}
+
+async function migrateLegacyCategories(): Promise<TagCategory[] | null> {
+	const legacyCategories = readLegacyCategories();
+	if (!legacyCategories) return null;
+
+	try {
+		await db.open();
+		await replaceCategories(legacyCategories);
+		localStorage.removeItem(LEGACY_CATEGORY_STORAGE_KEY);
+	} catch (error) {
+		console.warn("旧カテゴリ設定のIndexedDB移行に失敗しました:", error);
+	}
+
+	return legacyCategories;
+}
+
 export async function getCategorySettings(): Promise<CategorySettings> {
 	if (typeof window === "undefined") {
 		return { categories: [] };
@@ -11,9 +59,16 @@ export async function getCategorySettings(): Promise<CategorySettings> {
 	try {
 		await db.open();
 		const categories = await getAllCategories();
-		return { categories };
+		if (categories.length > 0) {
+			return { categories };
+		}
 	} catch (error) {
 		console.warn("カテゴリ設定の読み込みに失敗しました:", error);
+	}
+
+	const migratedCategories = await migrateLegacyCategories();
+	if (migratedCategories) {
+		return { categories: migratedCategories };
 	}
 
 	return { categories: [] };
@@ -27,6 +82,7 @@ export async function saveCategorySettings(
 	}
 
 	try {
+		localStorage.removeItem(LEGACY_CATEGORY_STORAGE_KEY);
 		await db.open();
 		await replaceCategories(settings.categories);
 	} catch (error) {

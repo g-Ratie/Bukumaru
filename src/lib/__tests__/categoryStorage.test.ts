@@ -42,6 +42,49 @@ describe("getCategorySettings", () => {
 
 		expect(actual).toEqual(storedSettings);
 	});
+
+	test("should migrate categories from legacy localStorage when IndexedDB is empty", async () => {
+		const legacyCategories: TagCategory[] = [
+			{
+				id: "legacy-1",
+				name: "レガシーカテゴリ",
+				color: "blue",
+				tags: ["legacy"],
+			},
+		];
+		localStorage.setItem(
+			"novel-search-categories",
+			JSON.stringify({ categories: legacyCategories }),
+		);
+
+		const actual = await getCategorySettings();
+		const stored = await db.categories.toArray();
+
+		expect(actual.categories).toEqual(legacyCategories);
+		expect(stored).toEqual(legacyCategories);
+		expect(localStorage.getItem("novel-search-categories")).toBeNull();
+	});
+
+	test("should handle legacy data stored as plain array", async () => {
+		const legacyCategories: TagCategory[] = [
+			{
+				id: "legacy-2",
+				name: "旧形式カテゴリ",
+				color: "red",
+				tags: ["plain-array"],
+			},
+		];
+		localStorage.setItem(
+			"novel-search-categories",
+			JSON.stringify(legacyCategories),
+		);
+
+		const actual = await getCategorySettings();
+		const stored = await db.categories.toArray();
+
+		expect(actual.categories).toEqual(legacyCategories);
+		expect(stored).toEqual(legacyCategories);
+	});
 });
 
 describe("saveCategorySettings", () => {
