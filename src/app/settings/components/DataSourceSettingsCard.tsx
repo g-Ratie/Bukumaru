@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { DataSourceInfo } from "@/hooks/useSettingsDataSource";
-import { formatUpdateTime } from "@/lib/novelDataStorage";
+import { formatUpdateTime } from "@/utils/novelData/novelDataStorage";
 
 interface DataSourceSettingsCardProps {
 	dataSource: DataSourceInfo;
@@ -26,10 +26,10 @@ interface DataSourceSettingsCardProps {
 	dataSourceUrl: string;
 	uploadError: string | null;
 	onUrlChange: (value: string) => void;
-	onUrlSubmit: () => void;
-	onFileUpload: (file: File | null) => void;
-	onRefresh: () => void;
-	onClear: () => void;
+	onUrlSubmit: () => Promise<void>;
+	onFileUpload: (file: File | null) => Promise<void>;
+	onRefresh: () => Promise<void>;
+	onClear: () => Promise<void>;
 }
 
 export function DataSourceSettingsCard({
@@ -67,7 +67,7 @@ export function DataSourceSettingsCard({
 									<Button
 										variant="outline"
 										size="sm"
-										onClick={onRefresh}
+										onClick={() => void onRefresh()}
 										disabled={isRefreshDisabled}
 									>
 										<RefreshCw className="h-4 w-4" />
@@ -77,7 +77,7 @@ export function DataSourceSettingsCard({
 								<Button
 									variant="outline"
 									size="sm"
-									onClick={onClear}
+									onClick={() => void onClear()}
 									disabled={isClearDisabled}
 								>
 									<X className="h-4 w-4" />
@@ -143,7 +143,7 @@ export function DataSourceSettingsCard({
 								disabled={isUploadingData}
 								onChange={(event) => {
 									const file = event.target.files?.[0] ?? null;
-									onFileUpload(file);
+									void onFileUpload(file);
 								}}
 							/>
 						</Label>
@@ -161,7 +161,7 @@ export function DataSourceSettingsCard({
 							disabled={isUploadingData}
 						/>
 						<Button
-							onClick={onUrlSubmit}
+							onClick={() => void onUrlSubmit()}
 							disabled={!dataSourceUrl.trim() || isUploadingData}
 						>
 							<Download className="mr-2 h-4 w-4" />

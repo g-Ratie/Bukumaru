@@ -1,47 +1,31 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import type { NovelDataStorage } from "../novelDataStorage";
+import type { NovelDataStorage } from "../../utils/novelData/novelDataStorage";
 import {
 	clearStoredNovelData,
 	formatUpdateTime,
 	getStoredNovelData,
 	saveNovelData,
-} from "../novelDataStorage";
+} from "../../utils/novelData/novelDataStorage";
+import * as indexedDb from "../indexedDb";
 import { createMinimalNovelData } from "./testData";
 
-const mockLocalStorage = (() => {
-	let store: Record<string, string> = {};
+const { db } = indexedDb;
 
-	return {
-		getItem: (key: string) => store[key] || null,
-		setItem: (key: string, value: string) => {
-			store[key] = value;
-		},
-		removeItem: (key: string) => {
-			delete store[key];
-		},
-		clear: () => {
-			store = {};
-		},
-	};
-})();
-
-beforeEach(() => {
+beforeEach(async () => {
 	vi.restoreAllMocks();
-	Object.defineProperty(global, "localStorage", {
-		value: mockLocalStorage,
-		writable: true,
-	});
-	mockLocalStorage.clear();
+	localStorage.clear();
+	await db.delete();
+	await db.open();
 });
 
 describe("getStoredNovelData", () => {
-	test("should return null when no data is stored", () => {
-		const actual = getStoredNovelData();
+	test("should return null when no data is stored", async () => {
+		const actual = await getStoredNovelData();
 
 		expect(actual).toBe(null);
 	});
 
-	test("should return stored novel data when data exists", () => {
+	test("should return stored novel data when data exists", async () => {
 		const mockNovel = createMinimalNovelData({
 			id: "1",
 			title: "テスト小説",
@@ -58,27 +42,19 @@ describe("getStoredNovelData", () => {
 			updatedAt: "2024-01-01T00:00:00+09:00",
 		};
 
-		mockLocalStorage.setItem("novel-data-source", JSON.stringify(storedData));
+		await saveNovelData(storedData);
 
-		const actual = getStoredNovelData();
+		const actual = await getStoredNovelData();
 
 		expect(actual).not.toBe(null);
 		expect(actual?.novels).toHaveLength(1);
 		expect(actual?.sourceType).toBe("file");
 		expect(actual?.fileName).toBe("test.json");
 	});
-
-	test("should return null when stored data is invalid JSON", () => {
-		mockLocalStorage.setItem("novel-data-source", "invalid json");
-
-		const actual = getStoredNovelData();
-
-		expect(actual).toBe(null);
-	});
 });
 
 describe("saveNovelData", () => {
-	test("should save novel data to localStorage", () => {
+	test("should save novel data to IndexedDB", async () => {
 		const mockNovel = createMinimalNovelData({
 			id: "1",
 			title: "テスト小説",
@@ -95,17 +71,20 @@ describe("saveNovelData", () => {
 			updatedAt: "2024-01-01T00:00:00+09:00",
 		};
 
-		saveNovelData(data);
+		await saveNovelData(data);
 
-		const stored = mockLocalStorage.getItem("novel-data-source");
-		expect(stored).not.toBe(null);
-
-		const actual = JSON.parse(stored || "{}") as NovelDataStorage;
-		expect(actual.novels).toHaveLength(1);
-		expect(actual.sourceType).toBe("file");
+		const storedMeta = await db.novelDataMeta.get("current");
+		const storedNovels = await db.novels.toArray();
+		expect(storedMeta).toEqual({
+			id: "current",
+			sourceType: "file",
+			fileName: "test.json",
+			updatedAt: "2024-01-01T00:00:00+09:00",
+		});
+		expect(storedNovels).toEqual(data.novels);
 	});
 
-	test("should throw error when localStorage save fails", () => {
+	test("should throw error when IndexedDB save fails", async () => {
 		const mockNovel = createMinimalNovelData({
 			id: "1",
 			title: "テスト小説",
@@ -122,18 +101,19 @@ describe("saveNovelData", () => {
 			updatedAt: "2024-01-01T00:00:00+09:00",
 		};
 
-		vi.spyOn(mockLocalStorage, "setItem").mockImplementation(() => {
-			throw new Error("QuotaExceededError");
-		});
+		vi.spyOn(db, "open").mockResolvedValue(db);
+		vi.spyOn(indexedDb, "replaceNovels").mockRejectedValue(
+			new Error("QuotaExceededError"),
+		);
 
-		expect(() => saveNovelData(data)).toThrow(
+		await expect(saveNovelData(data)).rejects.toThrow(
 			"データの保存に失敗しました。容量が不足している可能性があります。",
 		);
 	});
 });
 
 describe("clearStoredNovelData", () => {
-	test("should remove novel data from localStorage", () => {
+	test("should remove novel data from IndexedDB", async () => {
 		const mockNovel = createMinimalNovelData({
 			id: "1",
 			title: "テスト小説",
@@ -150,12 +130,14 @@ describe("clearStoredNovelData", () => {
 			updatedAt: "2024-01-01T00:00:00+09:00",
 		};
 
-		mockLocalStorage.setItem("novel-data-source", JSON.stringify(data));
+		await saveNovelData(data);
 
-		clearStoredNovelData();
+		await clearStoredNovelData();
 
-		const actual = mockLocalStorage.getItem("novel-data-source");
-		expect(actual).toBe(null);
+		const storedMeta = await db.novelDataMeta.get("current");
+		const storedNovels = await db.novels.toArray();
+		expect(storedMeta).toBeUndefined();
+		expect(storedNovels).toHaveLength(0);
 	});
 });
 

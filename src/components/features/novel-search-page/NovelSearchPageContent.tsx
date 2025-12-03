@@ -10,10 +10,13 @@ import { LoadingState } from "@/components/shared/loading-state/LoadingState";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useURLSearchParams } from "@/hooks/useURLSearchParams";
 import { createDemoNovelData } from "@/lib/demoNovelData";
-import { getStoredNovelData, saveNovelData } from "@/lib/novelDataStorage";
-import { filterNovelsWithPagination } from "@/lib/novelSearchFilters";
 import type { Novel } from "@/types/novel";
 import type { SearchFilters, SearchResult } from "@/types/search";
+import { filterNovelsWithPagination } from "@/utils/filter/novelSearchFilters";
+import {
+	getStoredNovelData,
+	saveNovelData,
+} from "@/utils/novelData/novelDataStorage";
 
 export function NovelSearchPageContent() {
 	const [novels, setNovels] = useState<Novel[]>([]);
@@ -33,9 +36,9 @@ export function NovelSearchPageContent() {
 		getFiltersFromURL(),
 	);
 
-	const loadNovels = useCallback(() => {
+	const loadNovels = useCallback(async () => {
 		setIsLoading(true);
-		const storedData = getStoredNovelData();
+		const storedData = await getStoredNovelData();
 		if (storedData) {
 			setNovels(storedData.novels);
 			setIsSetupDialogOpen(false);
@@ -52,7 +55,7 @@ export function NovelSearchPageContent() {
 	}, [novels, filters]);
 
 	useEffect(() => {
-		loadNovels();
+		void loadNovels();
 	}, [loadNovels]);
 
 	useEffect(() => {
@@ -105,11 +108,11 @@ export function NovelSearchPageContent() {
 		}));
 	};
 
-	const handleUseDemoData = () => {
+	const handleUseDemoData = async () => {
 		setIsApplyingDemoData(true);
 		try {
 			const demoData = createDemoNovelData();
-			saveNovelData(demoData);
+			await saveNovelData(demoData);
 			setNovels(demoData.novels);
 			setIsSetupDialogOpen(false);
 		} finally {

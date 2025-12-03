@@ -8,8 +8,8 @@ import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useCategories } from "@/hooks/useCategories";
 import { useSettingsDataSource } from "@/hooks/useSettingsDataSource";
-import { getTagSuggestions } from "@/lib/novelSearchFilters";
 import type { TagCategory } from "@/types/category";
+import { getTagSuggestions } from "@/utils/filter/novelSearchFilters";
 
 import { CategoryDialog } from "./components/CategoryDialog";
 import { CategoryManagementCard } from "./components/CategoryManagementCard";
@@ -69,9 +69,9 @@ export default function SettingsPage() {
 		color: string;
 	}) => {
 		if (dialogMode === "add") {
-			addCategory({ name, color, tags: [] });
+			void addCategory({ name, color, tags: [] });
 		} else if (editingCategory) {
-			updateCategory(editingCategory.id, { name, color });
+			void updateCategory(editingCategory.id, { name, color });
 		}
 
 		setIsDialogOpen(false);

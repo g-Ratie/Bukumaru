@@ -2,7 +2,7 @@ export {
 	formatDate,
 	formatDateWithTime,
 	formatReadingTime,
-} from "../../../../lib/novelFormatters";
+} from "../../../../utils/novelData/novelFormatters";
 export {
 	type CategorizedTag,
 	getCategoryColorClasses,

@@ -7,17 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { getCategoryColorClasses } from "@/lib/categoryColors";
 import type { TagCategory } from "@/types/category";
+import { getCategoryColorClasses } from "@/utils/category/categoryColors";
 
 interface CategoryManagementCardProps {
 	categories: TagCategory[];
 	isLoading: boolean;
 	onAddCategoryClick: () => void;
 	onEditCategory: (category: TagCategory) => void;
-	onDeleteCategory: (id: string) => void;
-	onAddTag: (categoryId: string, tag: string) => void;
-	onRemoveTag: (categoryId: string, tag: string) => void;
+	onDeleteCategory: (id: string) => Promise<void>;
+	onAddTag: (categoryId: string, tag: string) => Promise<void>;
+	onRemoveTag: (categoryId: string, tag: string) => Promise<void>;
 	tagSuggestions: Array<{ tag: string; count: number }>;
 }
 
@@ -61,13 +61,13 @@ export function CategoryManagementCard({
 	const handleTagAddition = (categoryId: string) => {
 		const newTag = tagInputs[categoryId]?.trim();
 		if (!newTag) return;
-		onAddTag(categoryId, newTag);
+		void onAddTag(categoryId, newTag);
 		setTagInputs((previous) => ({ ...previous, [categoryId]: "" }));
 		setActiveCategoryId(null);
 	};
 
 	const handleTagSelect = (categoryId: string, tag: string) => {
-		onAddTag(categoryId, tag);
+		void onAddTag(categoryId, tag);
 		setTagInputs((previous) => ({ ...previous, [categoryId]: "" }));
 		setActiveCategoryId(null);
 	};
@@ -135,7 +135,7 @@ export function CategoryManagementCard({
 											<Button
 												variant="outline"
 												size="sm"
-												onClick={() => onDeleteCategory(category.id)}
+												onClick={() => void onDeleteCategory(category.id)}
 												className="text-red-600 hover:text-red-700"
 											>
 												<Trash2 className="h-4 w-4" />
@@ -155,7 +155,7 @@ export function CategoryManagementCard({
 													variant="ghost"
 													size="sm"
 													className="h-auto p-0"
-													onClick={() => onRemoveTag(category.id, tag)}
+													onClick={() => void onRemoveTag(category.id, tag)}
 												>
 													<X className="h-3 w-3" />
 												</Button>

@@ -4,7 +4,7 @@ import {
 	deleteSavedFilter,
 	getAllSavedFilters,
 	saveFilter,
-} from "../savedFiltersDB";
+} from "../../utils/filter/savedFiltersDB";
 
 beforeEach(async () => {
 	const request = indexedDB.deleteDatabase("PixivNovelFilters");

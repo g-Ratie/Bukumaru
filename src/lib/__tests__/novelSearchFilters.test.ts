@@ -10,7 +10,7 @@ import {
 	getAuthorSuggestions,
 	getTagSuggestions,
 	sortNovels,
-} from "../novelSearchFilters";
+} from "../../utils/filter/novelSearchFilters";
 
 // テスト用の小説データ
 const mockNovels: Novel[] = [

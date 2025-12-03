@@ -7,43 +7,25 @@ import {
 	getCategorySettings,
 	saveCategorySettings,
 	updateCategory,
-} from "../categoryStorage";
+} from "../../utils/category/categoryStorage";
+import { db } from "../indexedDb";
 
-const mockLocalStorage = (() => {
-	let store: Record<string, string> = {};
-
-	return {
-		getItem: (key: string) => store[key] || null,
-		setItem: (key: string, value: string) => {
-			store[key] = value;
-		},
-		removeItem: (key: string) => {
-			delete store[key];
-		},
-		clear: () => {
-			store = {};
-		},
-	};
-})();
-
-beforeEach(() => {
-	Object.defineProperty(global, "localStorage", {
-		value: mockLocalStorage,
-		writable: true,
-	});
-	mockLocalStorage.clear();
-	vi.clearAllMocks();
+beforeEach(async () => {
+	vi.restoreAllMocks();
+	localStorage.clear();
+	await db.delete();
+	await db.open();
 });
 
 describe("getCategorySettings", () => {
-	test("should return empty categories when no data is stored", () => {
-		const actual = getCategorySettings();
+	test("should return empty categories when no data is stored", async () => {
+		const actual = await getCategorySettings();
 
 		const expected: CategorySettings = { categories: [] };
 		expect(actual).toEqual(expected);
 	});
 
-	test("should return stored categories when data exists", () => {
+	test("should return stored categories when data exists", async () => {
 		const storedSettings: CategorySettings = {
 			categories: [
 				{
@@ -54,28 +36,59 @@ describe("getCategorySettings", () => {
 				},
 			],
 		};
-		mockLocalStorage.setItem(
-			"novel-search-categories",
-			JSON.stringify(storedSettings),
-		);
+		await saveCategorySettings(storedSettings);
 
-		const actual = getCategorySettings();
+		const actual = await getCategorySettings();
 
 		expect(actual).toEqual(storedSettings);
 	});
 
-	test("should return empty categories when stored data is invalid JSON", () => {
-		mockLocalStorage.setItem("novel-search-categories", "invalid json");
+	test("should migrate categories from legacy localStorage when IndexedDB is empty", async () => {
+		const legacyCategories: TagCategory[] = [
+			{
+				id: "legacy-1",
+				name: "レガシーカテゴリ",
+				color: "blue",
+				tags: ["legacy"],
+			},
+		];
+		localStorage.setItem(
+			"novel-search-categories",
+			JSON.stringify({ categories: legacyCategories }),
+		);
 
-		const actual = getCategorySettings();
+		const actual = await getCategorySettings();
+		const stored = await db.categories.toArray();
 
-		const expected: CategorySettings = { categories: [] };
-		expect(actual).toEqual(expected);
+		expect(actual.categories).toEqual(legacyCategories);
+		expect(stored).toEqual(legacyCategories);
+		expect(localStorage.getItem("novel-search-categories")).toBeNull();
+	});
+
+	test("should handle legacy data stored as plain array", async () => {
+		const legacyCategories: TagCategory[] = [
+			{
+				id: "legacy-2",
+				name: "旧形式カテゴリ",
+				color: "red",
+				tags: ["plain-array"],
+			},
+		];
+		localStorage.setItem(
+			"novel-search-categories",
+			JSON.stringify(legacyCategories),
+		);
+
+		const actual = await getCategorySettings();
+		const stored = await db.categories.toArray();
+
+		expect(actual.categories).toEqual(legacyCategories);
+		expect(stored).toEqual(legacyCategories);
 	});
 });
 
 describe("saveCategorySettings", () => {
-	test("should save category settings to localStorage", () => {
+	test("should save category settings to IndexedDB", async () => {
 		const settings: CategorySettings = {
 			categories: [
 				{
@@ -87,11 +100,10 @@ describe("saveCategorySettings", () => {
 			],
 		};
 
-		saveCategorySettings(settings);
+		await saveCategorySettings(settings);
 
-		const actual = mockLocalStorage.getItem("novel-search-categories");
-		const expected = JSON.stringify(settings);
-		expect(actual).toBe(expected);
+		const stored = await db.categories.toArray();
+		expect(stored).toEqual(settings.categories);
 	});
 });
 
@@ -113,34 +125,31 @@ describe("getCategoryForTag", () => {
 		],
 	};
 
-	beforeEach(() => {
-		mockLocalStorage.setItem(
-			"novel-search-categories",
-			JSON.stringify(testCategories),
-		);
+	beforeEach(async () => {
+		await saveCategorySettings(testCategories);
 	});
 
-	test("should return category when tag matches exactly", () => {
-		const actual = getCategoryForTag("タグA");
+	test("should return category when tag matches exactly", async () => {
+		const actual = await getCategoryForTag("タグA");
 
 		expect(actual?.id).toBe("1");
 		expect(actual?.name).toBe("カテゴリA");
 	});
 
-	test("should return category when tag matches case-insensitively", () => {
-		const actual = getCategoryForTag("タグa");
+	test("should return category when tag matches case-insensitively", async () => {
+		const actual = await getCategoryForTag("タグa");
 
 		expect(actual?.id).toBe("1");
 		expect(actual?.name).toBe("カテゴリA");
 	});
 
-	test("should return null when tag does not match", () => {
-		const actual = getCategoryForTag("存在しないタグ");
+	test("should return null when tag does not match", async () => {
+		const actual = await getCategoryForTag("存在しないタグ");
 
 		expect(actual).toBe(null);
 	});
 
-	test("should return first matching category when tag exists in multiple categories", () => {
+	test("should return first matching category when tag exists in multiple categories", async () => {
 		const duplicateCategories: CategorySettings = {
 			categories: [
 				{
@@ -157,19 +166,16 @@ describe("getCategoryForTag", () => {
 				},
 			],
 		};
-		mockLocalStorage.setItem(
-			"novel-search-categories",
-			JSON.stringify(duplicateCategories),
-		);
+		await saveCategorySettings(duplicateCategories);
 
-		const actual = getCategoryForTag("共通タグ");
+		const actual = await getCategoryForTag("共通タグ");
 
 		expect(actual?.id).toBe("1");
 	});
 });
 
 describe("addCategory", () => {
-	test("should add new category with generated id", () => {
+	test("should add new category with generated id", async () => {
 		const mockId = "test-uuid-1";
 		vi.spyOn(crypto, "randomUUID").mockReturnValue(mockId);
 
@@ -179,7 +185,7 @@ describe("addCategory", () => {
 			tags: ["新規タグ"],
 		};
 
-		const actual = addCategory(newCategory);
+		const actual = await addCategory(newCategory);
 
 		expect(actual.id).toBe(mockId);
 		expect(actual.name).toBe("新規カテゴリ");
@@ -187,7 +193,7 @@ describe("addCategory", () => {
 		expect(actual.tags).toEqual(["新規タグ"]);
 	});
 
-	test("should persist added category to localStorage", () => {
+	test("should persist added category to IndexedDB", async () => {
 		const mockId = "test-uuid-1";
 		vi.spyOn(crypto, "randomUUID").mockReturnValue(mockId);
 
@@ -197,12 +203,11 @@ describe("addCategory", () => {
 			tags: ["タグ"],
 		};
 
-		addCategory(newCategory);
+		await addCategory(newCategory);
 
-		const stored = mockLocalStorage.getItem("novel-search-categories");
-		const actual = JSON.parse(stored || "{}") as CategorySettings;
-		expect(actual.categories).toHaveLength(1);
-		expect(actual.categories[0].id).toBe(mockId);
+		const stored = await getCategorySettings();
+		expect(stored.categories).toHaveLength(1);
+		expect(stored.categories[0].id).toBe(mockId);
 	});
 });
 
@@ -214,31 +219,27 @@ describe("updateCategory", () => {
 		tags: ["タグ1"],
 	};
 
-	beforeEach(() => {
+	beforeEach(async () => {
 		const settings: CategorySettings = {
 			categories: [existingCategory],
 		};
-		mockLocalStorage.setItem(
-			"novel-search-categories",
-			JSON.stringify(settings),
-		);
+		await saveCategorySettings(settings);
 	});
 
-	test("should update existing category", () => {
-		updateCategory("1", { name: "更新されたカテゴリ" });
+	test("should update existing category", async () => {
+		await updateCategory("1", { name: "更新されたカテゴリ" });
 
-		const stored = mockLocalStorage.getItem("novel-search-categories");
-		const actual = JSON.parse(stored || "{}") as CategorySettings;
-		expect(actual.categories[0].name).toBe("更新されたカテゴリ");
-		expect(actual.categories[0].color).toBe("blue");
+		const stored = await getCategorySettings();
+		expect(stored.categories[0].name).toBe("更新されたカテゴリ");
+		expect(stored.categories[0].color).toBe("blue");
 	});
 
-	test("should not update when category id does not exist", () => {
-		const beforeUpdate = getCategorySettings();
+	test("should not update when category id does not exist", async () => {
+		const beforeUpdate = await getCategorySettings();
 
-		updateCategory("non-existent-id", { name: "更新" });
+		await updateCategory("non-existent-id", { name: "更新" });
 
-		const actual = getCategorySettings();
+		const actual = await getCategorySettings();
 		expect(actual).toEqual(beforeUpdate);
 	});
 });
@@ -259,28 +260,23 @@ describe("deleteCategory", () => {
 		},
 	];
 
-	beforeEach(() => {
+	beforeEach(async () => {
 		const settings: CategorySettings = { categories };
-		mockLocalStorage.setItem(
-			"novel-search-categories",
-			JSON.stringify(settings),
-		);
+		await saveCategorySettings(settings);
 	});
 
-	test("should delete category by id", () => {
-		deleteCategory("1");
+	test("should delete category by id", async () => {
+		await deleteCategory("1");
 
-		const stored = mockLocalStorage.getItem("novel-search-categories");
-		const actual = JSON.parse(stored || "{}") as CategorySettings;
-		expect(actual.categories).toHaveLength(1);
-		expect(actual.categories[0].id).toBe("2");
+		const stored = await getCategorySettings();
+		expect(stored.categories).toHaveLength(1);
+		expect(stored.categories[0].id).toBe("2");
 	});
 
-	test("should not affect other categories when deleting non-existent id", () => {
-		deleteCategory("non-existent-id");
+	test("should not affect other categories when deleting non-existent id", async () => {
+		await deleteCategory("non-existent-id");
 
-		const stored = mockLocalStorage.getItem("novel-search-categories");
-		const actual = JSON.parse(stored || "{}") as CategorySettings;
-		expect(actual.categories).toHaveLength(2);
+		const stored = await getCategorySettings();
+		expect(stored.categories).toHaveLength(2);
 	});
 });
