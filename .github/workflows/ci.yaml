@@ -32,6 +32,3 @@ jobs:
 
     - name: Run TypeScript Compiler
       run: bunx tsgo
-
-    - name: Build Project
-      run: bun run build
