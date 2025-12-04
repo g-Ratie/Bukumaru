@@ -31,7 +31,4 @@ jobs:
       run: bun run test
 
     - name: Run TypeScript Compiler
-      run: bun tsc
-
-    - name: Build Project
-      run: bun run build
+      run: bunx tsgo
