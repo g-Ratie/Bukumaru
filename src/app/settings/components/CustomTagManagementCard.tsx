@@ -58,24 +58,20 @@ export function CustomTagManagementCard({
 							const colorClasses = getCategoryColorClasses(customTag.color);
 
 							return (
-                                                                <div
-                                                                        key={customTag.id}
-                                                                        className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
-                                                                >
-                                                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                                                                <div className="flex flex-wrap items-center gap-3">
-                                                                                        <Badge
-                                                                                                className={`${colorClasses.bgClass} ${colorClasses.textClass} border-0`}
-                                                                                        >
-                                                                                                <span
-                                                                                                        aria-hidden
-                                                                                                        className={`h-2.5 w-2.5 rounded-full border border-white/60 ${colorClasses.bgClass}`}
-                                                                                                />
-                                                                                                {customTag.name}
-                                                                                        </Badge>
-                                                                                        <span className="text-muted-foreground text-sm">
-                                                                                                {customTag.tags.length > 0
-                                                                                                        ? `構成タグ: ${customTag.tags.length}件`
+								<div
+									key={customTag.id}
+									className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+								>
+									<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+										<div className="flex flex-wrap items-center gap-3">
+											<Badge
+												className={`${colorClasses.bgClass} ${colorClasses.textClass} border-0`}
+											>
+												{customTag.name}
+											</Badge>
+											<span className="text-muted-foreground text-sm">
+												{customTag.tags.length > 0
+													? `構成タグ: ${customTag.tags.length}件`
 													: "構成タグなし"}
 											</span>
 										</div>
