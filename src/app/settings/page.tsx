@@ -7,12 +7,16 @@ import { useMemo, useState } from "react";
 import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useCategories } from "@/hooks/useCategories";
+import { useCustomTags } from "@/hooks/useCustomTags";
 import { useSettingsDataSource } from "@/hooks/useSettingsDataSource";
 import type { TagCategory } from "@/types/category";
+import type { CustomTag } from "@/types/customTag";
 import { getTagSuggestions } from "@/utils/filter/novelSearchFilters";
 
 import { CategoryDialog } from "./components/CategoryDialog";
 import { CategoryManagementCard } from "./components/CategoryManagementCard";
+import { CustomTagDialog } from "./components/CustomTagDialog";
+import { CustomTagManagementCard } from "./components/CustomTagManagementCard";
 import { DataSourceSettingsCard } from "./components/DataSourceSettingsCard";
 import { ThemeSettingsCard } from "./components/ThemeSettingsCard";
 
@@ -39,15 +43,30 @@ export default function SettingsPage() {
 		addTagToCategory,
 		removeTagFromCategory,
 	} = useCategories();
+	const {
+		customTags,
+		isLoaded: areCustomTagsLoaded,
+		addCustomTag,
+		updateCustomTag: updateCustomTagState,
+		deleteCustomTag,
+	} = useCustomTags();
 
 	const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [editingCategory, setEditingCategory] = useState<TagCategory | null>(
 		null,
 	);
+	const [customTagDialogMode, setCustomTagDialogMode] = useState<
+		"add" | "edit"
+	>("add");
+	const [isCustomTagDialogOpen, setIsCustomTagDialogOpen] = useState(false);
+	const [editingCustomTag, setEditingCustomTag] = useState<CustomTag | null>(
+		null,
+	);
 
 	const tagSuggestions = useMemo(() => getTagSuggestions(novels), [novels]);
 	const isCategoryLoading = isInitialLoading || !isLoaded;
+	const isCustomTagsLoading = isInitialLoading || !areCustomTagsLoaded;
 
 	const handleOpenAddDialog = () => {
 		setDialogMode("add");
@@ -82,6 +101,48 @@ export default function SettingsPage() {
 		setIsDialogOpen(open);
 		if (!open) {
 			setEditingCategory(null);
+		}
+	};
+
+	const handleOpenAddCustomTagDialog = () => {
+		setCustomTagDialogMode("add");
+		setEditingCustomTag(null);
+		setIsCustomTagDialogOpen(true);
+	};
+
+	const handleOpenEditCustomTagDialog = (customTag: CustomTag) => {
+		setCustomTagDialogMode("edit");
+		setEditingCustomTag(customTag);
+		setIsCustomTagDialogOpen(true);
+	};
+
+	const handleCustomTagDialogSubmit = ({
+		name,
+		color,
+		tags,
+	}: {
+		name: string;
+		color: string;
+		tags: string[];
+	}) => {
+		if (customTagDialogMode === "add") {
+			void addCustomTag({ name, color, tags });
+		} else if (editingCustomTag) {
+			void updateCustomTagState(editingCustomTag.id, {
+				name,
+				color,
+				tags,
+			});
+		}
+
+		setIsCustomTagDialogOpen(false);
+		setEditingCustomTag(null);
+	};
+
+	const handleCustomTagDialogOpenChange = (open: boolean) => {
+		setIsCustomTagDialogOpen(open);
+		if (!open) {
+			setEditingCustomTag(null);
 		}
 	};
 
@@ -136,6 +197,14 @@ export default function SettingsPage() {
 						onRemoveTag={removeTagFromCategory}
 						tagSuggestions={tagSuggestions}
 					/>
+
+					<CustomTagManagementCard
+						customTags={customTags}
+						isLoading={isCustomTagsLoading}
+						onAddCustomTagClick={handleOpenAddCustomTagDialog}
+						onEditCustomTag={handleOpenEditCustomTagDialog}
+						onDeleteCustomTag={deleteCustomTag}
+					/>
 				</div>
 			</div>
 
@@ -149,6 +218,23 @@ export default function SettingsPage() {
 						? { name: editingCategory.name, color: editingCategory.color }
 						: undefined
 				}
+			/>
+
+			<CustomTagDialog
+				mode={customTagDialogMode}
+				open={isCustomTagDialogOpen}
+				onOpenChange={handleCustomTagDialogOpenChange}
+				onSubmit={handleCustomTagDialogSubmit}
+				defaultValues={
+					customTagDialogMode === "edit" && editingCustomTag
+						? {
+								name: editingCustomTag.name,
+								color: editingCustomTag.color,
+								tags: editingCustomTag.tags,
+							}
+						: undefined
+				}
+				tagSuggestions={tagSuggestions}
 			/>
 		</div>
 	);
