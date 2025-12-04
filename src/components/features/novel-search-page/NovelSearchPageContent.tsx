@@ -1,17 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/features/novel-search-page/empty-state/EmptyState";
 import { PageHeader } from "@/components/features/novel-search-page/page-header/PageHeader";
 import { SearchPanels } from "@/components/features/novel-search-page/search-form/SearchPanels";
 import { SetupDialog } from "@/components/features/novel-search-page/setup-dialog/SetupDialog";
 import { LoadingState } from "@/components/shared/loading-state/LoadingState";
+import { useCustomTags } from "@/hooks/useCustomTags";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useURLSearchParams } from "@/hooks/useURLSearchParams";
 import { createDemoNovelData } from "@/lib/demoNovelData";
 import type { Novel } from "@/types/novel";
 import type { SearchFilters, SearchResult } from "@/types/search";
+import { applyCustomTagsToNovels } from "@/utils/custom-tag/customTagMatcher";
 import { filterNovelsWithPagination } from "@/utils/filter/novelSearchFilters";
 import {
 	getStoredNovelData,
@@ -35,6 +37,12 @@ export function NovelSearchPageContent() {
 	const [filters, setFilters] = useState<SearchFilters>(() =>
 		getFiltersFromURL(),
 	);
+	const { customTags } = useCustomTags();
+
+	const novelsWithCustomTags = useMemo(
+		() => applyCustomTagsToNovels(novels, customTags),
+		[novels, customTags],
+	);
 
 	const loadNovels = useCallback(async () => {
 		setIsLoading(true);
@@ -50,9 +58,9 @@ export function NovelSearchPageContent() {
 	}, []);
 
 	const filterNovelsCallback = useCallback(() => {
-		const result = filterNovelsWithPagination(novels, filters);
+		const result = filterNovelsWithPagination(novelsWithCustomTags, filters);
 		setSearchResult(result);
-	}, [novels, filters]);
+	}, [filters, novelsWithCustomTags]);
 
 	useEffect(() => {
 		void loadNovels();
@@ -140,7 +148,7 @@ export function NovelSearchPageContent() {
 					<SearchPanels
 						isMobile={isMobile}
 						filters={filters}
-						novels={novels}
+						novels={novelsWithCustomTags}
 						searchResult={searchResult}
 						onFilterChange={handleFilterChange}
 						onAuthorSearch={handleAuthorSearch}
