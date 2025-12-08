@@ -28,19 +28,19 @@ describe("useURLSearchParams", () => {
 
 			const { result } = renderHook(() => useURLSearchParams());
 
-                        const actual = result.current.getFiltersFromURL();
+			const actual = result.current.getFiltersFromURL();
 
-                        const expected: SearchFilters = {
-                                authorName: "",
-                                tags: [],
-                                selectedTag: "",
-                                minTextCount: null,
-                                maxTextCount: null,
-                                sortBy: "createDate",
-                                sortOrder: "desc",
-                                currentPage: 1,
-                                itemsPerPage: 24,
-                        };
+			const expected: SearchFilters = {
+				authorName: "",
+				tags: [],
+				selectedTag: "",
+				minTextCount: null,
+				maxTextCount: null,
+				sortBy: "createDate",
+				sortOrder: "desc",
+				currentPage: 1,
+				itemsPerPage: 24,
+			};
 			expect(actual).toEqual(expected);
 		});
 
@@ -78,11 +78,11 @@ describe("useURLSearchParams", () => {
 
 			const { result } = renderHook(() => useURLSearchParams());
 
-                        const actual = result.current.getFiltersFromURL();
+			const actual = result.current.getFiltersFromURL();
 
-                        expect(actual.minTextCount).toBe(1000);
-                        expect(actual.maxTextCount).toBe(10000);
-                        expect(actual.currentPage).toBe(3);
+			expect(actual.minTextCount).toBe(1000);
+			expect(actual.maxTextCount).toBe(10000);
+			expect(actual.currentPage).toBe(3);
 			expect(actual.itemsPerPage).toBe(48);
 		});
 
@@ -107,17 +107,17 @@ describe("useURLSearchParams", () => {
 
 			const { result } = renderHook(() => useURLSearchParams());
 
-                        const filters: SearchFilters = {
-                                authorName: "作者A",
-                                tags: ["タグ1", "タグ2"],
-                                selectedTag: "",
-                                minTextCount: 1000,
-                                maxTextCount: 50000,
-                                sortBy: "createDate",
-                                sortOrder: "desc",
-                                currentPage: 1,
-                                itemsPerPage: 24,
-                        };
+			const filters: SearchFilters = {
+				authorName: "作者A",
+				tags: ["タグ1", "タグ2"],
+				selectedTag: "",
+				minTextCount: 1000,
+				maxTextCount: 50000,
+				sortBy: "createDate",
+				sortOrder: "desc",
+				currentPage: 1,
+				itemsPerPage: 24,
+			};
 
 			result.current.updateURLParams(filters);
 
@@ -138,19 +138,19 @@ describe("useURLSearchParams", () => {
 		test("should not include default values in URL params", () => {
 			mockUsePathname.mockReturnValue("/search");
 
-                        const { result } = renderHook(() => useURLSearchParams());
+			const { result } = renderHook(() => useURLSearchParams());
 
-                        const filters: SearchFilters = {
-                                authorName: "",
-                                tags: [],
-                                selectedTag: "",
-                                minTextCount: null,
-                                maxTextCount: null,
-                                sortBy: "createDate",
-                                sortOrder: "desc",
-                                currentPage: 1,
-                                itemsPerPage: 24,
-                        };
+			const filters: SearchFilters = {
+				authorName: "",
+				tags: [],
+				selectedTag: "",
+				minTextCount: null,
+				maxTextCount: null,
+				sortBy: "createDate",
+				sortOrder: "desc",
+				currentPage: 1,
+				itemsPerPage: 24,
+			};
 
 			result.current.updateURLParams(filters);
 

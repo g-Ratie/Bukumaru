@@ -24,14 +24,14 @@ export function CollapsibleSearchForm({
 		setIsExpanded(!isExpanded);
 	};
 
-        const hasActiveFilters =
-                filters.authorName !== "" ||
-                filters.tags.length > 0 ||
-                filters.selectedTag !== "" ||
-                filters.minTextCount !== null ||
-                filters.maxTextCount !== null ||
-                filters.sortBy !== "createDate" ||
-                filters.sortOrder !== "desc";
+	const hasActiveFilters =
+		filters.authorName !== "" ||
+		filters.tags.length > 0 ||
+		filters.selectedTag !== "" ||
+		filters.minTextCount !== null ||
+		filters.maxTextCount !== null ||
+		filters.sortBy !== "createDate" ||
+		filters.sortOrder !== "desc";
 
 	return (
 		<div className="w-full">
