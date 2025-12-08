@@ -15,13 +15,27 @@ export function useURLSearchParams() {
 
 		const tagsParam = params.get("tags");
 		const tags = tagsParam ? tagsParam.split(",").filter(Boolean) : [];
+		const minTextCountParam = params.get("minCount");
+		const parsedMinTextCount =
+			minTextCountParam === null ? null : Number(minTextCountParam);
+		const minTextCount =
+			parsedMinTextCount === null || Number.isNaN(parsedMinTextCount)
+				? null
+				: parsedMinTextCount;
+		const maxTextCountParam = params.get("maxCount");
+		const parsedMaxTextCount =
+			maxTextCountParam === null ? null : Number(maxTextCountParam);
+		const maxTextCount =
+			parsedMaxTextCount === null || Number.isNaN(parsedMaxTextCount)
+				? null
+				: parsedMaxTextCount;
 
 		return {
 			authorName: params.get("author") || "",
 			tags,
 			selectedTag: params.get("selectedTag") || "",
-			minTextCount: Number(params.get("minCount")) || 0,
-			maxTextCount: Number(params.get("maxCount")) || 50000,
+			minTextCount,
+			maxTextCount,
 			sortBy: (params.get("sortBy") as SearchFilters["sortBy"]) || "createDate",
 			sortOrder:
 				(params.get("sortOrder") as SearchFilters["sortOrder"]) || "desc",
@@ -43,10 +57,10 @@ export function useURLSearchParams() {
 			if (filters.selectedTag) {
 				params.set("selectedTag", filters.selectedTag);
 			}
-			if (filters.minTextCount > 0) {
+			if (filters.minTextCount !== null) {
 				params.set("minCount", filters.minTextCount.toString());
 			}
-			if (filters.maxTextCount !== 50000) {
+			if (filters.maxTextCount !== null) {
 				params.set("maxCount", filters.maxTextCount.toString());
 			}
 			if (filters.sortBy !== "createDate") {

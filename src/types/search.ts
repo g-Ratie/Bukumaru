@@ -2,8 +2,8 @@ export interface SearchFilters {
 	authorName: string;
 	tags: string[];
 	selectedTag: string;
-	minTextCount: number;
-	maxTextCount: number;
+	minTextCount: number | null;
+	maxTextCount: number | null;
 	sortBy: "title" | "userName" | "textCount" | "bookmarkCount" | "createDate";
 	sortOrder: "asc" | "desc";
 	currentPage: number;

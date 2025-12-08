@@ -67,10 +67,13 @@ export function filterBySelectedTag(
 
 export function filterByTextCount(
 	novel: Novel,
-	minTextCount: number,
-	maxTextCount: number,
+	minTextCount: number | null,
+	maxTextCount: number | null,
 ): boolean {
-	return novel.textCount >= minTextCount && novel.textCount <= maxTextCount;
+	const meetsMin = minTextCount === null || novel.textCount >= minTextCount;
+	const meetsMax = maxTextCount === null || novel.textCount <= maxTextCount;
+
+	return meetsMin && meetsMax;
 }
 
 export function sortNovels(

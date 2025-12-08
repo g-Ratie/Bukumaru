@@ -96,7 +96,9 @@ export function SearchForm({
 		});
 	};
 	const handleTextCountChange = (type: "min" | "max", value: string) => {
-		const numValue = parseInt(value, 10) || 0;
+		const parsedValue = Number(value);
+		const numValue =
+			value === "" || Number.isNaN(parsedValue) ? null : parsedValue;
 		onFilterChange({
 			...filters,
 			[type === "min" ? "minTextCount" : "maxTextCount"]: numValue,
@@ -119,8 +121,8 @@ export function SearchForm({
 			authorName: "",
 			tags: [],
 			selectedTag: "",
-			minTextCount: 0,
-			maxTextCount: 50000,
+			minTextCount: null,
+			maxTextCount: null,
 			sortBy: "createDate",
 			sortOrder: "desc",
 			currentPage: 1,
@@ -312,13 +314,13 @@ export function SearchForm({
 					<Input
 						placeholder="最小"
 						type="number"
-						value={filters.minTextCount}
+						value={filters.minTextCount ?? ""}
 						onChange={(e) => handleTextCountChange("min", e.target.value)}
 					/>
 					<Input
 						placeholder="最大"
 						type="number"
-						value={filters.maxTextCount}
+						value={filters.maxTextCount ?? ""}
 						onChange={(e) => handleTextCountChange("max", e.target.value)}
 					/>
 				</div>
@@ -359,7 +361,7 @@ export function SearchForm({
 							onFilterChange({
 								...filters,
 								minTextCount: 20000,
-								maxTextCount: 50000,
+								maxTextCount: null,
 							})
 						}
 					>

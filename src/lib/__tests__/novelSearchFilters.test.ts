@@ -201,6 +201,21 @@ describe("filterByTextCount", () => {
 		const actual = filterByTextCount(mockNovels[0], 1000, 4000);
 		expect(actual).toBe(false);
 	});
+
+	test("should ignore minimum when minTextCount is null", () => {
+		const actual = filterByTextCount(mockNovels[0], null, 4000);
+		expect(actual).toBe(false);
+	});
+
+	test("should ignore maximum when maxTextCount is null", () => {
+		const actual = filterByTextCount(mockNovels[2], 20000, null);
+		expect(actual).toBe(true);
+	});
+
+	test("should return true when both bounds are null", () => {
+		const actual = filterByTextCount(mockNovels[1], null, null);
+		expect(actual).toBe(true);
+	});
 });
 
 describe("sortNovels", () => {
@@ -250,8 +265,8 @@ describe("filterNovels", () => {
 		authorName: "",
 		tags: [],
 		selectedTag: "",
-		minTextCount: 0,
-		maxTextCount: 50000,
+		minTextCount: null,
+		maxTextCount: null,
 		currentPage: 1,
 		itemsPerPage: 24,
 		sortBy: "createDate",

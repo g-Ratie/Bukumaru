@@ -28,8 +28,8 @@ export function CollapsibleSearchForm({
 		filters.authorName !== "" ||
 		filters.tags.length > 0 ||
 		filters.selectedTag !== "" ||
-		filters.minTextCount !== 0 ||
-		filters.maxTextCount !== 50000 ||
+		filters.minTextCount !== null ||
+		filters.maxTextCount !== null ||
 		filters.sortBy !== "createDate" ||
 		filters.sortOrder !== "desc";
 
