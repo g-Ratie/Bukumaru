@@ -177,10 +177,10 @@ describe("filterBySelectedTag", () => {
 });
 
 describe("filterByTextCount", () => {
-	test("should return true when text count is within range", () => {
-		const actual = filterByTextCount(mockNovels[0], 1000, 10000);
-		expect(actual).toBe(true);
-	});
+        test("should return true when text count is within range", () => {
+                const actual = filterByTextCount(mockNovels[0], 1000, 10000);
+                expect(actual).toBe(true);
+        });
 
 	test("should return true when text count equals minimum", () => {
 		const actual = filterByTextCount(mockNovels[0], 5000, 10000);
@@ -197,10 +197,25 @@ describe("filterByTextCount", () => {
 		expect(actual).toBe(false);
 	});
 
-	test("should return false when text count is above maximum", () => {
-		const actual = filterByTextCount(mockNovels[0], 1000, 4000);
-		expect(actual).toBe(false);
-	});
+        test("should return false when text count is above maximum", () => {
+                const actual = filterByTextCount(mockNovels[0], 1000, 4000);
+                expect(actual).toBe(false);
+        });
+
+        test("should ignore minimum when minTextCount is null", () => {
+                const actual = filterByTextCount(mockNovels[0], null, 4000);
+                expect(actual).toBe(false);
+        });
+
+        test("should ignore maximum when maxTextCount is null", () => {
+                const actual = filterByTextCount(mockNovels[2], 20000, null);
+                expect(actual).toBe(true);
+        });
+
+        test("should return true when both bounds are null", () => {
+                const actual = filterByTextCount(mockNovels[1], null, null);
+                expect(actual).toBe(true);
+        });
 });
 
 describe("sortNovels", () => {
@@ -246,17 +261,17 @@ describe("sortNovels", () => {
 });
 
 describe("filterNovels", () => {
-	const defaultFilters: SearchFilters = {
-		authorName: "",
-		tags: [],
-		selectedTag: "",
-		minTextCount: 0,
-		maxTextCount: 50000,
-		currentPage: 1,
-		itemsPerPage: 24,
-		sortBy: "createDate",
-		sortOrder: "desc",
-	};
+        const defaultFilters: SearchFilters = {
+                authorName: "",
+                tags: [],
+                selectedTag: "",
+                minTextCount: null,
+                maxTextCount: null,
+                currentPage: 1,
+                itemsPerPage: 24,
+                sortBy: "createDate",
+                sortOrder: "desc",
+        };
 
 	test("should return all novels with default filters", () => {
 		const actual = filterNovels(mockNovels, defaultFilters);

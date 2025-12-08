@@ -89,19 +89,20 @@ export function SearchForm({
 		}
 	};
 
-	const handleTagRemove = (tagToRemove: string) => {
-		onFilterChange({
-			...filters,
-			tags: filters.tags.filter((tag) => tag !== tagToRemove),
-		});
-	};
-	const handleTextCountChange = (type: "min" | "max", value: string) => {
-		const numValue = parseInt(value, 10) || 0;
-		onFilterChange({
-			...filters,
-			[type === "min" ? "minTextCount" : "maxTextCount"]: numValue,
-		});
-	};
+        const handleTagRemove = (tagToRemove: string) => {
+                onFilterChange({
+                        ...filters,
+                        tags: filters.tags.filter((tag) => tag !== tagToRemove),
+                });
+        };
+        const handleTextCountChange = (type: "min" | "max", value: string) => {
+                const parsedValue = Number(value);
+                const numValue = value === "" || Number.isNaN(parsedValue) ? null : parsedValue;
+                onFilterChange({
+                        ...filters,
+                        [type === "min" ? "minTextCount" : "maxTextCount"]: numValue,
+                });
+        };
 
 	const handleSortChange = (value: string) => {
 		const [sortBy, sortOrder] = value.split("-");
@@ -112,21 +113,21 @@ export function SearchForm({
 		});
 	};
 
-	const handleReset = () => {
-		setAuthorInput("");
-		setTagInput("");
-		onFilterChange({
-			authorName: "",
-			tags: [],
-			selectedTag: "",
-			minTextCount: 0,
-			maxTextCount: 50000,
-			sortBy: "createDate",
-			sortOrder: "desc",
-			currentPage: 1,
-			itemsPerPage: 24,
-		});
-	};
+        const handleReset = () => {
+                setAuthorInput("");
+                setTagInput("");
+                onFilterChange({
+                        authorName: "",
+                        tags: [],
+                        selectedTag: "",
+                        minTextCount: null,
+                        maxTextCount: null,
+                        sortBy: "createDate",
+                        sortOrder: "desc",
+                        currentPage: 1,
+                        itemsPerPage: 24,
+                });
+        };
 
 	const handleSaveFilter = async (name: string) => {
 		const filterData: SavedFilterData = {
@@ -309,43 +310,43 @@ export function SearchForm({
 			<div className="space-y-2">
 				<Label>文字数</Label>
 				<div className="grid grid-cols-2 gap-2">
-					<Input
-						placeholder="最小"
-						type="number"
-						value={filters.minTextCount}
-						onChange={(e) => handleTextCountChange("min", e.target.value)}
-					/>
-					<Input
-						placeholder="最大"
-						type="number"
-						value={filters.maxTextCount}
-						onChange={(e) => handleTextCountChange("max", e.target.value)}
-					/>
-				</div>
-				<div className="flex flex-wrap gap-1 sm:gap-2">
+                                        <Input
+                                                placeholder="最小"
+                                                type="number"
+                                                value={filters.minTextCount ?? ""}
+                                                onChange={(e) => handleTextCountChange("min", e.target.value)}
+                                        />
+                                        <Input
+                                                placeholder="最大"
+                                                type="number"
+                                                value={filters.maxTextCount ?? ""}
+                                                onChange={(e) => handleTextCountChange("max", e.target.value)}
+                                        />
+                                </div>
+                                <div className="flex flex-wrap gap-1 sm:gap-2">
 					<Button
 						variant="outline"
 						size="sm"
 						className="text-xs sm:text-sm"
 						onClick={() =>
-							onFilterChange({
-								...filters,
-								minTextCount: 0,
-								maxTextCount: 5000,
-							})
-						}
-					>
-						短編 (~5K)
+                                                        onFilterChange({
+                                                                ...filters,
+                                                                minTextCount: 0,
+                                                                maxTextCount: 5000,
+                                                        })
+                                                }
+                                        >
+                                                短編 (~5K)
 					</Button>
 					<Button
 						variant="outline"
 						size="sm"
 						className="text-xs sm:text-sm"
 						onClick={() =>
-							onFilterChange({
-								...filters,
-								minTextCount: 5000,
-								maxTextCount: 20000,
+                                                        onFilterChange({
+                                                                ...filters,
+                                                                minTextCount: 5000,
+                                                                maxTextCount: 20000,
 							})
 						}
 					>
@@ -356,14 +357,14 @@ export function SearchForm({
 						size="sm"
 						className="text-xs sm:text-sm"
 						onClick={() =>
-							onFilterChange({
-								...filters,
-								minTextCount: 20000,
-								maxTextCount: 50000,
-							})
-						}
-					>
-						長編 (20K+)
+                                                        onFilterChange({
+                                                                ...filters,
+                                                                minTextCount: 20000,
+                                                                maxTextCount: null,
+                                                        })
+                                                }
+                                        >
+                                                長編 (20K+)
 					</Button>
 				</div>
 			</div>

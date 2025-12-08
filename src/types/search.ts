@@ -1,13 +1,13 @@
 export interface SearchFilters {
-	authorName: string;
-	tags: string[];
-	selectedTag: string;
-	minTextCount: number;
-	maxTextCount: number;
-	sortBy: "title" | "userName" | "textCount" | "bookmarkCount" | "createDate";
-	sortOrder: "asc" | "desc";
-	currentPage: number;
-	itemsPerPage: number;
+        authorName: string;
+        tags: string[];
+        selectedTag: string;
+        minTextCount: number | null;
+        maxTextCount: number | null;
+        sortBy: "title" | "userName" | "textCount" | "bookmarkCount" | "createDate";
+        sortOrder: "asc" | "desc";
+        currentPage: number;
+        itemsPerPage: number;
 }
 
 export interface SearchResult {
