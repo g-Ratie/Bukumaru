@@ -103,7 +103,7 @@ export function DataSourceSettingsCard({
 							{dataSource.type === "url" && (
 								<>
 									<Link2 className="mr-2 inline h-4 w-4" />
-									URL: {dataSource.url}
+									<span className="break-all">URL: {dataSource.url}</span>
 								</>
 							)}
 							{dataSource.type === "file" && (
