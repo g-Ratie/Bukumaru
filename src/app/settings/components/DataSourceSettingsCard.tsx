@@ -100,12 +100,12 @@ export function DataSourceSettingsCard({
 									デモデータを使用中
 								</>
 							)}
-							{dataSource.type === "url" && (
-								<>
-									<Link2 className="mr-2 inline h-4 w-4" />
-									URL: {dataSource.url}
-								</>
-							)}
+                                                        {dataSource.type === "url" && (
+                                                                <span className="inline-flex max-w-full items-center gap-2 align-middle">
+                                                                        <Link2 className="h-4 w-4" />
+                                                                        <span className="break-words text-left">URL: {dataSource.url}</span>
+                                                                </span>
+                                                        )}
 							{dataSource.type === "file" && (
 								<>
 									<FileJson className="mr-2 inline h-4 w-4" />
