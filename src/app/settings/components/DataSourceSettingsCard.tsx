@@ -87,32 +87,34 @@ export function DataSourceSettingsCard({
 						)}
 					</div>
 					<div className="space-y-1 text-sm">
-						<p className="text-muted-foreground">
-							{dataSource.type === "default" && (
-								<>
-									<FileJson className="mr-2 inline h-4 w-4" />
-									データが設定されていません
-								</>
-							)}
-							{dataSource.type === "demo" && (
-								<>
-									<Sparkles className="mr-2 inline h-4 w-4 text-primary" />
-									デモデータを使用中
-								</>
-							)}
-                                                        {dataSource.type === "url" && (
-                                                                <span className="inline-flex max-w-full items-center gap-2 align-middle">
-                                                                        <Link2 className="h-4 w-4" />
-                                                                        <span className="break-words text-left">URL: {dataSource.url}</span>
-                                                                </span>
+                                                <div className="space-y-1 text-muted-foreground">
+                                                        {dataSource.type === "default" && (
+                                                                <div className="flex items-center gap-2 text-sm">
+                                                                        <FileJson className="h-4 w-4" />
+                                                                        <span>データが設定されていません</span>
+                                                                </div>
                                                         )}
-							{dataSource.type === "file" && (
-								<>
-									<FileJson className="mr-2 inline h-4 w-4" />
-									ファイル: {dataSource.fileName}
-								</>
-							)}
-						</p>
+                                                        {dataSource.type === "demo" && (
+                                                                <div className="flex items-center gap-2 text-sm">
+                                                                        <Sparkles className="h-4 w-4 text-primary" />
+                                                                        <span>デモデータを使用中</span>
+                                                                </div>
+                                                        )}
+                                                        {dataSource.type === "url" && (
+                                                                <div className="flex max-w-full items-start gap-2 text-sm">
+                                                                        <Link2 className="mt-0.5 h-4 w-4 shrink-0" />
+                                                                        <p className="min-w-0 break-all text-left leading-6">
+                                                                                <span className="font-medium">URL:</span> {dataSource.url}
+                                                                        </p>
+                                                                </div>
+                                                        )}
+                                                        {dataSource.type === "file" && (
+                                                                <div className="flex items-center gap-2 text-sm">
+                                                                        <FileJson className="h-4 w-4" />
+                                                                        <span>ファイル: {dataSource.fileName}</span>
+                                                                </div>
+                                                        )}
+                                                </div>
 						{dataSource.updatedAt && (
 							<p className="text-muted-foreground text-xs">
 								最終更新: {formatUpdateTime(dataSource.updatedAt)}
