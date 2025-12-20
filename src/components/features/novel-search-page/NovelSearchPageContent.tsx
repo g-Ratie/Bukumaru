@@ -107,7 +107,7 @@ export function NovelSearchPageContent() {
 				currentPage: 1,
 			};
 		});
-		window.scrollTo({ top: 0, behavior: "smooth" });
+		window.scrollTo({ top: 0, behavior: "auto" });
 	};
 
 	const handlePageChange = (page: number) => {
