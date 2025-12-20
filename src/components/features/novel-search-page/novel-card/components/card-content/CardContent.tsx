@@ -13,6 +13,7 @@ interface CardContentProps {
 	readingTime: number;
 	bookmarkCount: number;
 	onTagSearch: (tag: string) => void;
+	highlightTags: string[];
 }
 
 export function CardContent({
@@ -22,6 +23,7 @@ export function CardContent({
 	readingTime,
 	bookmarkCount,
 	onTagSearch,
+	highlightTags,
 }: CardContentProps) {
 	const sanitizedDescription = useMemo(
 		() => sanitizeNovelDescription(description),
@@ -35,7 +37,11 @@ export function CardContent({
 				// biome-ignore lint/security/noDangerouslySetInnerHtml: 一旦許可
 				dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
 			/>
-			<NovelTags tags={tags} onTagClick={onTagSearch} />
+			<NovelTags
+				tags={tags}
+				onTagClick={onTagSearch}
+				highlightTags={highlightTags}
+			/>
 			<NovelStats
 				textCount={textCount}
 				readingTime={readingTime}

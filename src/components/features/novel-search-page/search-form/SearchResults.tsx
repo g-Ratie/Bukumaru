@@ -10,6 +10,7 @@ interface SearchResultsProps {
 	searchResult: SearchResult;
 	onAuthorSearch: (authorName: string) => void;
 	onTagSearch: (tag: string) => void;
+	highlightTags: string[];
 	onPageChange: (page: number) => void;
 }
 
@@ -17,6 +18,7 @@ export function SearchResults({
 	searchResult,
 	onAuthorSearch,
 	onTagSearch,
+	highlightTags,
 	onPageChange,
 }: SearchResultsProps) {
 	const { novels, totalCount, currentPage, totalPages } = searchResult;
@@ -75,6 +77,7 @@ export function SearchResults({
 							novel={novel}
 							onAuthorSearch={onAuthorSearch}
 							onTagSearch={onTagSearch}
+							highlightTags={highlightTags}
 						/>
 					</div>
 				))}
