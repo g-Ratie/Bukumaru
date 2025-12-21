@@ -2,6 +2,10 @@
 
 import { FolderOpen, MoreVertical, Save, X } from "lucide-react";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import {
+	SuggestionList,
+	type SuggestionListItem,
+} from "@/components/shared/suggestion-list/SuggestionList";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -74,10 +78,13 @@ export function SearchForm({
 		setAuthorInput(filters.authorName);
 	}, [filters.authorName]);
 
-	const handleAuthorChange = (value: string) => {
-		setAuthorInput(value);
-		onFilterChange({ ...filters, authorName: value });
-	};
+	const handleAuthorChange = useCallback(
+		(value: string) => {
+			setAuthorInput(value);
+			onFilterChange({ ...filters, authorName: value });
+		},
+		[filters, onFilterChange],
+	);
 
 	const handleTagAdd = () => {
 		if (tagInput.trim() && !filters.tags.includes(tagInput.trim())) {
@@ -95,6 +102,56 @@ export function SearchForm({
 			tags: filters.tags.filter((tag) => tag !== tagToRemove),
 		});
 	};
+	const authorSuggestions = useMemo<SuggestionListItem[]>(
+		() =>
+			allAuthors
+				.filter((author) =>
+					author.userName.toLowerCase().includes(authorInput.toLowerCase()),
+				)
+				.slice(0, 10)
+				.map((author) => ({
+					key: author.userName,
+					label: `${author.userName} (${author.count}作品)`,
+					onClick: () => handleAuthorChange(author.userName),
+					onTouchStart: (event) => {
+						event.preventDefault();
+						handleAuthorChange(author.userName);
+					},
+				})),
+		[allAuthors, authorInput, handleAuthorChange],
+	);
+	const tagSuggestions = useMemo<SuggestionListItem[]>(
+		() =>
+			allTags
+				.filter((tagSuggestion) =>
+					tagSuggestion.tag.toLowerCase().includes(tagInput.toLowerCase()),
+				)
+				.slice(0, 10)
+				.map((tagSuggestion) => ({
+					key: tagSuggestion.tag,
+					label: `${tagSuggestion.tag} (${tagSuggestion.count})`,
+					onClick: () => {
+						if (!filters.tags.includes(tagSuggestion.tag)) {
+							onFilterChange({
+								...filters,
+								tags: [...filters.tags, tagSuggestion.tag],
+							});
+						}
+						setTagInput("");
+					},
+					onTouchStart: (event) => {
+						event.preventDefault();
+						if (!filters.tags.includes(tagSuggestion.tag)) {
+							onFilterChange({
+								...filters,
+								tags: [...filters.tags, tagSuggestion.tag],
+							});
+						}
+						setTagInput("");
+					},
+				})),
+		[allTags, tagInput, filters, onFilterChange],
+	);
 	const handleTextCountChange = (type: "min" | "max", value: string) => {
 		const parsedValue = Number(value);
 		const numValue =
@@ -206,31 +263,7 @@ export function SearchForm({
 						value={authorInput}
 						onChange={(e) => handleAuthorChange(e.target.value)}
 					/>
-					{authorInput && (
-						<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg dark:border-border dark:bg-popover">
-							{allAuthors
-								.filter((author) =>
-									author.userName
-										.toLowerCase()
-										.includes(authorInput.toLowerCase()),
-								)
-								.slice(0, 10)
-								.map((author) => (
-									<button
-										key={author.userName}
-										type="button"
-										className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-accent"
-										onClick={() => handleAuthorChange(author.userName)}
-										onTouchStart={(e) => {
-											e.preventDefault();
-											handleAuthorChange(author.userName);
-										}}
-									>
-										{author.userName} ({author.count}作品)
-									</button>
-								))}
-						</div>
-					)}
+					{authorInput && <SuggestionList items={authorSuggestions} />}
 				</div>
 			</div>
 
@@ -246,45 +279,7 @@ export function SearchForm({
 							onChange={(e) => setTagInput(e.target.value)}
 							onKeyDown={(e) => e.key === "Enter" && handleTagAdd()}
 						/>
-						{tagInput && (
-							<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg dark:border-border dark:bg-popover">
-								{allTags
-									.filter((tagSuggestion) =>
-										tagSuggestion.tag
-											.toLowerCase()
-											.includes(tagInput.toLowerCase()),
-									)
-									.slice(0, 10)
-									.map((tagSuggestion) => (
-										<button
-											key={tagSuggestion.tag}
-											type="button"
-											className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-accent"
-											onClick={() => {
-												if (!filters.tags.includes(tagSuggestion.tag)) {
-													onFilterChange({
-														...filters,
-														tags: [...filters.tags, tagSuggestion.tag],
-													});
-												}
-												setTagInput("");
-											}}
-											onTouchStart={(e) => {
-												e.preventDefault();
-												if (!filters.tags.includes(tagSuggestion.tag)) {
-													onFilterChange({
-														...filters,
-														tags: [...filters.tags, tagSuggestion.tag],
-													});
-												}
-												setTagInput("");
-											}}
-										>
-											{tagSuggestion.tag} ({tagSuggestion.count})
-										</button>
-									))}
-							</div>
-						)}
+						{tagInput && <SuggestionList items={tagSuggestions} />}
 					</div>
 					<Button onClick={handleTagAdd}>追加</Button>
 				</div>

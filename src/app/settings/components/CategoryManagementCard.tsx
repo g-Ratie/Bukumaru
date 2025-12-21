@@ -2,7 +2,10 @@
 
 import { Loader2, Plus, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
-
+import {
+	SuggestionList,
+	type SuggestionListItem,
+} from "@/components/shared/suggestion-list/SuggestionList";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,13 +66,13 @@ export function CategoryManagementCard({
 		if (!newTag) return;
 		void onAddTag(categoryId, newTag);
 		setTagInputs((previous) => ({ ...previous, [categoryId]: "" }));
-		setActiveCategoryId(null);
+		setActiveCategoryId(categoryId);
 	};
 
 	const handleTagSelect = (categoryId: string, tag: string) => {
 		void onAddTag(categoryId, tag);
 		setTagInputs((previous) => ({ ...previous, [categoryId]: "" }));
-		setActiveCategoryId(null);
+		setActiveCategoryId(categoryId);
 	};
 
 	return (
@@ -107,6 +110,16 @@ export function CategoryManagementCard({
 							const colorClasses = getCategoryColorClasses(category.color);
 							const inputValue = tagInputs[category.id] ?? "";
 							const suggestions = suggestionsByCategory[category.id] ?? [];
+							const suggestionItems: SuggestionListItem[] = suggestions.map(
+								(suggestion) => ({
+									key: suggestion.tag,
+									label: `${suggestion.tag} (${suggestion.count})`,
+									onMouseDown: (event) => {
+										event.preventDefault();
+										handleTagSelect(category.id, suggestion.tag);
+									},
+								}),
+							);
 
 							return (
 								<div
@@ -186,21 +199,7 @@ export function CategoryManagementCard({
 											{inputValue &&
 												activeCategoryId === category.id &&
 												suggestions.length > 0 && (
-													<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg dark:border-border dark:bg-popover">
-														{suggestions.map((suggestion) => (
-															<button
-																key={suggestion.tag}
-																type="button"
-																className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-accent"
-																onMouseDown={(event) => {
-																	event.preventDefault();
-																	handleTagSelect(category.id, suggestion.tag);
-																}}
-															>
-																{suggestion.tag} ({suggestion.count})
-															</button>
-														))}
-													</div>
+													<SuggestionList items={suggestionItems} />
 												)}
 										</div>
 										<Button
