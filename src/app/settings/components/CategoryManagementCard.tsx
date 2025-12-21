@@ -66,13 +66,13 @@ export function CategoryManagementCard({
 		if (!newTag) return;
 		void onAddTag(categoryId, newTag);
 		setTagInputs((previous) => ({ ...previous, [categoryId]: "" }));
-		setActiveCategoryId(null);
+		setActiveCategoryId(categoryId);
 	};
 
 	const handleTagSelect = (categoryId: string, tag: string) => {
 		void onAddTag(categoryId, tag);
 		setTagInputs((previous) => ({ ...previous, [categoryId]: "" }));
-		setActiveCategoryId(null);
+		setActiveCategoryId(categoryId);
 	};
 
 	return (
