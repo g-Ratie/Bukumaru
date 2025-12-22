@@ -99,7 +99,6 @@ export function CustomTagDialog({
 
 		setTags((prev) => ensureNormalizedTags([...prev, newTag]));
 		setTagInput("");
-		setIsTagInputFocused(false);
 	};
 
 	const handleRemoveTag = (tag: string) => {
