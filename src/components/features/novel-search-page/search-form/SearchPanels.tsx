@@ -39,6 +39,7 @@ export function SearchPanels({
 					searchResult={searchResult}
 					onAuthorSearch={onAuthorSearch}
 					onTagSearch={onTagSearch}
+					highlightTags={filters.tags}
 					onPageChange={onPageChange}
 				/>
 			</div>
@@ -59,6 +60,7 @@ export function SearchPanels({
 					searchResult={searchResult}
 					onAuthorSearch={onAuthorSearch}
 					onTagSearch={onTagSearch}
+					highlightTags={filters.tags}
 					onPageChange={onPageChange}
 				/>
 			</div>

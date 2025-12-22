@@ -28,6 +28,7 @@ interface NovelDetailDrawerProps {
 	onClose: () => void;
 	onTagSearch: (tag: string) => void;
 	onAuthorSearch: (authorName: string) => void;
+	highlightTags: string[];
 }
 
 export function NovelDetailDrawer({
@@ -36,6 +37,7 @@ export function NovelDetailDrawer({
 	onClose,
 	onTagSearch,
 	onAuthorSearch,
+	highlightTags,
 }: NovelDetailDrawerProps) {
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 	const sanitizedDescription = useMemo(
@@ -106,7 +108,11 @@ export function NovelDetailDrawer({
 					{/* タグ */}
 					<div>
 						<h3 className="mb-2 font-semibold text-sm">タグ</h3>
-						<NovelTags tags={novel.tags} onTagClick={handleTagClick} />
+						<NovelTags
+							tags={novel.tags}
+							onTagClick={handleTagClick}
+							highlightTags={highlightTags}
+						/>
 					</div>
 
 					{/* 小説の説明文 */}

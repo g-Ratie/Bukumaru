@@ -12,12 +12,14 @@ interface NovelCardProps {
 	novel: Novel;
 	onAuthorSearch: (authorName: string) => void;
 	onTagSearch: (tag: string) => void;
+	highlightTags: string[];
 }
 
 export function NovelCard({
 	novel,
 	onAuthorSearch,
 	onTagSearch,
+	highlightTags,
 }: NovelCardProps) {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -40,6 +42,7 @@ export function NovelCard({
 				readingTime={novel.readingTime}
 				bookmarkCount={novel.bookmarkCount}
 				onTagSearch={onTagSearch}
+				highlightTags={highlightTags}
 			/>
 
 			<div className="px-6 pb-6">
@@ -54,6 +57,7 @@ export function NovelCard({
 				onClose={() => setIsDrawerOpen(false)}
 				onTagSearch={onTagSearch}
 				onAuthorSearch={onAuthorSearch}
+				highlightTags={highlightTags}
 			/>
 		</Card>
 	);
