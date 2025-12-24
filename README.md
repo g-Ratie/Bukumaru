@@ -19,4 +19,4 @@ pixivのAPIのレスポンス準拠なのでよしなにやってください
 - **Package Manager**: Bun
 - **Git Hooks**: Lefthook
 
-このリポジトリは https://github.com/imaimai17468/imaimai-front-template をベースにしています。
+このリポジトリは https://github.com/imaimai17468/imaimai-front-templete をベースにしています。
