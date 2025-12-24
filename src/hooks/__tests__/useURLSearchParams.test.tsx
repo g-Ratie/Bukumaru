@@ -33,6 +33,7 @@ describe("useURLSearchParams", () => {
 			const expected: SearchFilters = {
 				authorName: "",
 				tags: [],
+				excludeTags: [],
 				selectedTag: "",
 				minTextCount: null,
 				maxTextCount: null,
@@ -59,6 +60,7 @@ describe("useURLSearchParams", () => {
 		test("should parse tags param from URL", () => {
 			const params = new URLSearchParams();
 			params.set("tags", "タグ1,タグ2,タグ3");
+			params.set("excludeTags", "除外1,除外2");
 			mockUseSearchParams.mockReturnValue(params);
 
 			const { result } = renderHook(() => useURLSearchParams());
@@ -66,6 +68,7 @@ describe("useURLSearchParams", () => {
 			const actual = result.current.getFiltersFromURL();
 
 			expect(actual.tags).toEqual(["タグ1", "タグ2", "タグ3"]);
+			expect(actual.excludeTags).toEqual(["除外1", "除外2"]);
 		});
 
 		test("should parse numeric params from URL", () => {
@@ -110,6 +113,7 @@ describe("useURLSearchParams", () => {
 			const filters: SearchFilters = {
 				authorName: "作者A",
 				tags: ["タグ1", "タグ2"],
+				excludeTags: ["除外1"],
 				selectedTag: "",
 				minTextCount: 1000,
 				maxTextCount: 50000,
@@ -143,6 +147,7 @@ describe("useURLSearchParams", () => {
 			const filters: SearchFilters = {
 				authorName: "",
 				tags: [],
+				excludeTags: [],
 				selectedTag: "",
 				minTextCount: null,
 				maxTextCount: null,
@@ -165,6 +170,7 @@ describe("useURLSearchParams", () => {
 			const filters: SearchFilters = {
 				authorName: "作者",
 				tags: ["タグ"],
+				excludeTags: ["除外"],
 				selectedTag: "選択タグ",
 				minTextCount: 100,
 				maxTextCount: 10000,
@@ -179,6 +185,7 @@ describe("useURLSearchParams", () => {
 			const callUrl = mockReplace.mock.calls[0][0];
 			expect(callUrl).toContain("author=");
 			expect(callUrl).toContain("tags=");
+			expect(callUrl).toContain("excludeTags=");
 			expect(callUrl).toContain("selectedTag=");
 			expect(callUrl).toContain("minCount=100");
 			expect(callUrl).toContain("maxCount=10000");

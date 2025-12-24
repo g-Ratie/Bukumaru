@@ -3,6 +3,7 @@ import type { Novel } from "@/types/novel";
 import type { SearchFilters } from "@/types/search";
 import {
 	filterByAuthor,
+	filterByExcludedTags,
 	filterBySelectedTag,
 	filterByTags,
 	filterByTextCount,
@@ -176,6 +177,32 @@ describe("filterBySelectedTag", () => {
 	});
 });
 
+describe("filterByExcludedTags", () => {
+	test("should return true when excludeTags array is empty", () => {
+		const actual = filterByExcludedTags(mockNovels[1], []);
+		expect(actual).toBe(true);
+	});
+
+	test("should return false when novel contains an excluded tag", () => {
+		const actual = filterByExcludedTags(mockNovels[1], ["東方"]);
+		expect(actual).toBe(false);
+	});
+
+	test("should return true when novel does not contain any excluded tags", () => {
+		const actual = filterByExcludedTags(mockNovels[0], ["東方"]);
+		expect(actual).toBe(true);
+	});
+
+	test("should match case-insensitively", () => {
+		const novelWithMixedCaseTag = {
+			...mockNovels[0],
+			tags: [...mockNovels[0].tags, "CaseTag"],
+		};
+		const actual = filterByExcludedTags(novelWithMixedCaseTag, ["casetag"]);
+		expect(actual).toBe(false);
+	});
+});
+
 describe("filterByTextCount", () => {
 	test("should return true when text count is within range", () => {
 		const actual = filterByTextCount(mockNovels[0], 1000, 10000);
@@ -264,6 +291,7 @@ describe("filterNovels", () => {
 	const defaultFilters: SearchFilters = {
 		authorName: "",
 		tags: [],
+		excludeTags: [],
 		selectedTag: "",
 		minTextCount: null,
 		maxTextCount: null,
@@ -298,6 +326,14 @@ describe("filterNovels", () => {
 
 		expect(actual).toHaveLength(1);
 		expect(actual[0].id).toBe("1");
+	});
+
+	test("should exclude novels by excludeTags", () => {
+		const filters = { ...defaultFilters, excludeTags: ["東方"] };
+		const actual = filterNovels(mockNovels, filters);
+
+		expect(actual).toHaveLength(2);
+		expect(actual.some((novel) => novel.id === "2")).toBe(false);
 	});
 
 	test("should filter by selected tag", () => {

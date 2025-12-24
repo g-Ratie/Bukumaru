@@ -9,6 +9,7 @@ import { CardContent as UICardContent } from "@/components/ui/card";
 interface CardContentProps {
 	description: string;
 	tags: string[];
+	customTagNames?: string[];
 	textCount: number;
 	readingTime: number;
 	bookmarkCount: number;
@@ -19,6 +20,7 @@ interface CardContentProps {
 export function CardContent({
 	description,
 	tags,
+	customTagNames,
 	textCount,
 	readingTime,
 	bookmarkCount,
@@ -39,6 +41,7 @@ export function CardContent({
 			/>
 			<NovelTags
 				tags={tags}
+				customTagNames={customTagNames}
 				onTagClick={onTagSearch}
 				highlightTags={highlightTags}
 			/>

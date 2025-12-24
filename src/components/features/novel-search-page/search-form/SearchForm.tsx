@@ -1,6 +1,13 @@
 "use client";
 
-import { FolderOpen, MoreVertical, Save, X } from "lucide-react";
+import {
+	ChevronDown,
+	ChevronUp,
+	FolderOpen,
+	MoreVertical,
+	Save,
+	X,
+} from "lucide-react";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,10 +53,12 @@ export function SearchForm({
 	novels,
 }: SearchFormProps) {
 	const [tagInput, setTagInput] = useState("");
+	const [excludeTagInput, setExcludeTagInput] = useState("");
 	const [authorInput, setAuthorInput] = useState(filters.authorName);
 	const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
 	const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 	const [isLoadDialogOpen, setIsLoadDialogOpen] = useState(false);
+	const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 	const authorId = useId();
 	const tagsId = useId();
 
@@ -79,12 +88,22 @@ export function SearchForm({
 		onFilterChange({ ...filters, authorName: value });
 	};
 
-	const handleTagAdd = () => {
-		if (tagInput.trim() && !filters.tags.includes(tagInput.trim())) {
+	const addIncludeTag = (value: string) => {
+		const trimmedTag = value.trim();
+		if (trimmedTag && !filters.tags.includes(trimmedTag)) {
 			onFilterChange({
 				...filters,
-				tags: [...filters.tags, tagInput.trim()],
+				tags: [...filters.tags, trimmedTag],
+				excludeTags: filters.excludeTags.filter((tag) => tag !== trimmedTag),
 			});
+			return true;
+		}
+		return false;
+	};
+
+	const handleTagAdd = () => {
+		const added = addIncludeTag(tagInput);
+		if (added) {
 			setTagInput("");
 		}
 	};
@@ -93,6 +112,25 @@ export function SearchForm({
 		onFilterChange({
 			...filters,
 			tags: filters.tags.filter((tag) => tag !== tagToRemove),
+		});
+	};
+
+	const handleExcludeTagAdd = (tagValue?: string) => {
+		const trimmedTag = (tagValue ?? excludeTagInput).trim();
+		if (trimmedTag && !filters.excludeTags.includes(trimmedTag)) {
+			onFilterChange({
+				...filters,
+				excludeTags: [...filters.excludeTags, trimmedTag],
+				tags: filters.tags.filter((tag) => tag !== trimmedTag),
+			});
+			setExcludeTagInput("");
+		}
+	};
+
+	const handleExcludeTagRemove = (tagToRemove: string) => {
+		onFilterChange({
+			...filters,
+			excludeTags: filters.excludeTags.filter((tag) => tag !== tagToRemove),
 		});
 	};
 	const handleTextCountChange = (type: "min" | "max", value: string) => {
@@ -117,9 +155,11 @@ export function SearchForm({
 	const handleReset = () => {
 		setAuthorInput("");
 		setTagInput("");
+		setExcludeTagInput("");
 		onFilterChange({
 			authorName: "",
 			tags: [],
+			excludeTags: [],
 			selectedTag: "",
 			minTextCount: null,
 			maxTextCount: null,
@@ -134,6 +174,7 @@ export function SearchForm({
 		const filterData: SavedFilterData = {
 			authorName: filters.authorName,
 			tags: filters.tags,
+			excludeTags: filters.excludeTags,
 			selectedTag: filters.selectedTag,
 			minTextCount: filters.minTextCount,
 			maxTextCount: filters.maxTextCount,
@@ -151,12 +192,17 @@ export function SearchForm({
 	};
 
 	const handleApplyFilter = (filter: SavedFilter) => {
+		const normalizedFilterData = {
+			...filter.filterData,
+			excludeTags: filter.filterData.excludeTags ?? [],
+		};
 		onFilterChange({
 			...filters,
-			...filter.filterData,
+			...normalizedFilterData,
 			currentPage: 1,
 		});
-		setAuthorInput(filter.filterData.authorName);
+		setAuthorInput(normalizedFilterData.authorName);
+		setExcludeTagInput("");
 	};
 
 	const handleDeleteFilter = async (id: string) => {
@@ -261,23 +307,15 @@ export function SearchForm({
 											type="button"
 											className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-accent"
 											onClick={() => {
-												if (!filters.tags.includes(tagSuggestion.tag)) {
-													onFilterChange({
-														...filters,
-														tags: [...filters.tags, tagSuggestion.tag],
-													});
+												if (addIncludeTag(tagSuggestion.tag)) {
+													setTagInput("");
 												}
-												setTagInput("");
 											}}
 											onTouchStart={(e) => {
 												e.preventDefault();
-												if (!filters.tags.includes(tagSuggestion.tag)) {
-													onFilterChange({
-														...filters,
-														tags: [...filters.tags, tagSuggestion.tag],
-													});
+												if (addIncludeTag(tagSuggestion.tag)) {
+													setTagInput("");
 												}
-												setTagInput("");
 											}}
 										>
 											{tagSuggestion.tag} ({tagSuggestion.count})
@@ -307,94 +345,200 @@ export function SearchForm({
 				)}
 			</div>
 
-			{/* 文字数絞り込み */}
-			<div className="space-y-2">
-				<Label>文字数</Label>
-				<div className="grid grid-cols-2 gap-2">
-					<Input
-						placeholder="最小"
-						type="number"
-						value={filters.minTextCount ?? ""}
-						onChange={(e) => handleTextCountChange("min", e.target.value)}
-					/>
-					<Input
-						placeholder="最大"
-						type="number"
-						value={filters.maxTextCount ?? ""}
-						onChange={(e) => handleTextCountChange("max", e.target.value)}
-					/>
-				</div>
-				<div className="flex flex-wrap gap-1 sm:gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						className="text-xs sm:text-sm"
-						onClick={() =>
-							onFilterChange({
-								...filters,
-								minTextCount: 0,
-								maxTextCount: 5000,
-							})
-						}
-					>
-						短編 (~5K)
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						className="text-xs sm:text-sm"
-						onClick={() =>
-							onFilterChange({
-								...filters,
-								minTextCount: 5000,
-								maxTextCount: 20000,
-							})
-						}
-					>
-						中編 (5K-20K)
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						className="text-xs sm:text-sm"
-						onClick={() =>
-							onFilterChange({
-								...filters,
-								minTextCount: 20000,
-								maxTextCount: null,
-							})
-						}
-					>
-						長編 (20K+)
-					</Button>
-				</div>
-			</div>
-
-			{/* ソート */}
-			<div className="space-y-2">
-				<Label>ソート</Label>
-				<Select
-					value={`${filters.sortBy}-${filters.sortOrder}`}
-					onValueChange={handleSortChange}
+			{/* 詳細フィルター（除外タグ以降） */}
+			<div className="rounded-md border border-dashed bg-muted/30 p-3 sm:p-4 dark:border-border/60">
+				<button
+					type="button"
+					className="flex w-full items-center justify-between gap-2"
+					onClick={() => setIsAdvancedOpen((prev) => !prev)}
+					aria-expanded={isAdvancedOpen}
 				>
-					<SelectTrigger>
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="createDate-desc">作成日 (新しい順)</SelectItem>
-						<SelectItem value="createDate-asc">作成日 (古い順)</SelectItem>
-						<SelectItem value="textCount-desc">文字数 (多い順)</SelectItem>
-						<SelectItem value="textCount-asc">文字数 (少ない順)</SelectItem>
-						<SelectItem value="bookmarkCount-desc">
-							ブックマーク数 (多い順)
-						</SelectItem>
-						<SelectItem value="bookmarkCount-asc">
-							ブックマーク数 (少ない順)
-						</SelectItem>
-						<SelectItem value="title-asc">タイトル (A-Z)</SelectItem>
-						<SelectItem value="userName-asc">作者名 (A-Z)</SelectItem>
-					</SelectContent>
-				</Select>
+					<div className="flex items-center gap-2">
+						<span className="font-medium text-sm">詳細フィルター</span>
+						{(filters.excludeTags.length > 0 ||
+							filters.minTextCount !== null ||
+							filters.maxTextCount !== null ||
+							filters.sortBy !== "createDate" ||
+							filters.sortOrder !== "desc") && (
+							<span className="rounded bg-blue-100 px-2 py-0.5 text-blue-800 text-xs dark:bg-blue-900 dark:text-blue-200">
+								適用中
+							</span>
+						)}
+					</div>
+					{isAdvancedOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+				</button>
+
+				{isAdvancedOpen && (
+					<div className="mt-4 space-y-4">
+						{/* 除外タグ検索 */}
+						<div className="space-y-2">
+							<Label>除外タグ</Label>
+							<div className="flex gap-2">
+								<div className="relative flex-1">
+									<Input
+										placeholder="含めたくないタグを入力"
+										value={excludeTagInput}
+										onChange={(e) => setExcludeTagInput(e.target.value)}
+										onKeyDown={(e) =>
+											e.key === "Enter" && handleExcludeTagAdd()
+										}
+									/>
+									{excludeTagInput && (
+										<div className="absolute top-full right-0 left-0 z-10 mt-1 max-h-32 overflow-y-auto rounded-md border bg-white shadow-lg dark:border-border dark:bg-popover">
+											{allTags
+												.filter(
+													(tagSuggestion) =>
+														tagSuggestion.tag
+															.toLowerCase()
+															.includes(excludeTagInput.toLowerCase()) &&
+														!filters.excludeTags.includes(tagSuggestion.tag),
+												)
+												.slice(0, 10)
+												.map((tagSuggestion) => (
+													<button
+														key={tagSuggestion.tag}
+														type="button"
+														className="block w-full cursor-pointer rounded p-2 text-left text-gray-600 text-sm hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-accent"
+														onClick={() => {
+															handleExcludeTagAdd(tagSuggestion.tag);
+														}}
+														onTouchStart={(e) => {
+															e.preventDefault();
+															handleExcludeTagAdd(tagSuggestion.tag);
+														}}
+													>
+														{tagSuggestion.tag} ({tagSuggestion.count})
+													</button>
+												))}
+										</div>
+									)}
+								</div>
+								<Button variant="outline" onClick={() => handleExcludeTagAdd()}>
+									除外
+								</Button>
+							</div>
+							{filters.excludeTags.length > 0 && (
+								<div className="flex flex-wrap gap-2">
+									{filters.excludeTags.map((tag) => (
+										<Badge
+											key={tag}
+											variant="destructive"
+											className="bg-destructive/10 text-destructive"
+										>
+											{tag}
+											<Button
+												variant="ghost"
+												size="sm"
+												className="ml-1 h-auto p-0 text-destructive"
+												onClick={() => handleExcludeTagRemove(tag)}
+											>
+												<X size={12} />
+											</Button>
+										</Badge>
+									))}
+								</div>
+							)}
+						</div>
+
+						{/* 文字数絞り込み */}
+						<div className="space-y-2">
+							<Label>文字数</Label>
+							<div className="grid grid-cols-2 gap-2">
+								<Input
+									placeholder="最小"
+									type="number"
+									value={filters.minTextCount ?? ""}
+									onChange={(e) => handleTextCountChange("min", e.target.value)}
+								/>
+								<Input
+									placeholder="最大"
+									type="number"
+									value={filters.maxTextCount ?? ""}
+									onChange={(e) => handleTextCountChange("max", e.target.value)}
+								/>
+							</div>
+							<div className="flex flex-wrap gap-1 sm:gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									className="text-xs sm:text-sm"
+									onClick={() =>
+										onFilterChange({
+											...filters,
+											minTextCount: 0,
+											maxTextCount: 5000,
+										})
+									}
+								>
+									短編 (~5K)
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									className="text-xs sm:text-sm"
+									onClick={() =>
+										onFilterChange({
+											...filters,
+											minTextCount: 5000,
+											maxTextCount: 20000,
+										})
+									}
+								>
+									中編 (5K-20K)
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									className="text-xs sm:text-sm"
+									onClick={() =>
+										onFilterChange({
+											...filters,
+											minTextCount: 20000,
+											maxTextCount: null,
+										})
+									}
+								>
+									長編 (20K+)
+								</Button>
+							</div>
+						</div>
+
+						{/* ソート */}
+						<div className="space-y-2">
+							<Label>ソート</Label>
+							<Select
+								value={`${filters.sortBy}-${filters.sortOrder}`}
+								onValueChange={handleSortChange}
+							>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="createDate-desc">
+										作成日 (新しい順)
+									</SelectItem>
+									<SelectItem value="createDate-asc">
+										作成日 (古い順)
+									</SelectItem>
+									<SelectItem value="textCount-desc">
+										文字数 (多い順)
+									</SelectItem>
+									<SelectItem value="textCount-asc">
+										文字数 (少ない順)
+									</SelectItem>
+									<SelectItem value="bookmarkCount-desc">
+										ブックマーク数 (多い順)
+									</SelectItem>
+									<SelectItem value="bookmarkCount-asc">
+										ブックマーク数 (少ない順)
+									</SelectItem>
+									<SelectItem value="title-asc">タイトル (A-Z)</SelectItem>
+									<SelectItem value="userName-asc">作者名 (A-Z)</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+					</div>
+				)}
 			</div>
 
 			{/* 保存ダイアログ */}

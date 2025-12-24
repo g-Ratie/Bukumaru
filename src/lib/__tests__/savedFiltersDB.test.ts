@@ -26,6 +26,7 @@ describe("saveFilter", () => {
 		const filterData: SavedFilterData = {
 			authorName: "作者A",
 			tags: ["タグ1", "タグ2"],
+			excludeTags: [],
 			selectedTag: "",
 			minTextCount: null,
 			maxTextCount: null,
@@ -45,6 +46,7 @@ describe("saveFilter", () => {
 		const filterData: SavedFilterData = {
 			authorName: "作者",
 			tags: [],
+			excludeTags: [],
 			selectedTag: "",
 			minTextCount: null,
 			maxTextCount: null,
@@ -70,6 +72,7 @@ describe("getAllSavedFilters", () => {
 		const filterData: SavedFilterData = {
 			authorName: "",
 			tags: [],
+			excludeTags: [],
 			selectedTag: "",
 			minTextCount: null,
 			maxTextCount: null,
@@ -94,6 +97,7 @@ describe("deleteSavedFilter", () => {
 		const filterData: SavedFilterData = {
 			authorName: "作者",
 			tags: [],
+			excludeTags: [],
 			selectedTag: "",
 			minTextCount: null,
 			maxTextCount: null,
@@ -113,6 +117,7 @@ describe("deleteSavedFilter", () => {
 		const filterData: SavedFilterData = {
 			authorName: "",
 			tags: [],
+			excludeTags: [],
 			selectedTag: "",
 			minTextCount: null,
 			maxTextCount: null,

@@ -27,6 +27,7 @@ export function CollapsibleSearchForm({
 	const hasActiveFilters =
 		filters.authorName !== "" ||
 		filters.tags.length > 0 ||
+		filters.excludeTags.length > 0 ||
 		filters.selectedTag !== "" ||
 		filters.minTextCount !== null ||
 		filters.maxTextCount !== null ||

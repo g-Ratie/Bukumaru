@@ -15,6 +15,10 @@ export function useURLSearchParams() {
 
 		const tagsParam = params.get("tags");
 		const tags = tagsParam ? tagsParam.split(",").filter(Boolean) : [];
+		const excludeTagsParam = params.get("excludeTags");
+		const excludeTags = excludeTagsParam
+			? excludeTagsParam.split(",").filter(Boolean)
+			: [];
 		const minTextCountParam = params.get("minCount");
 		const parsedMinTextCount =
 			minTextCountParam === null ? null : Number(minTextCountParam);
@@ -33,6 +37,7 @@ export function useURLSearchParams() {
 		return {
 			authorName: params.get("author") || "",
 			tags,
+			excludeTags,
 			selectedTag: params.get("selectedTag") || "",
 			minTextCount,
 			maxTextCount,
@@ -53,6 +58,9 @@ export function useURLSearchParams() {
 			}
 			if (filters.tags.length > 0) {
 				params.set("tags", filters.tags.join(","));
+			}
+			if (filters.excludeTags.length > 0) {
+				params.set("excludeTags", filters.excludeTags.join(","));
 			}
 			if (filters.selectedTag) {
 				params.set("selectedTag", filters.selectedTag);

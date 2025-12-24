@@ -37,13 +37,12 @@ export function applyCustomTagsToNovels(
 
 		const mergedTags = mergeTags(novel.tags, matchedCustomTagNames);
 
-		if (mergedTags.length === novel.tags.length) return novel;
-
 		hasApplied = true;
 
 		return {
 			...novel,
 			tags: mergedTags,
+			customTagNames: matchedCustomTagNames,
 		};
 	});
 

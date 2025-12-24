@@ -6,6 +6,7 @@ export interface Novel {
 	restrict: number;
 	url: string;
 	tags: string[];
+	customTagNames?: string[];
 	userId: string;
 	userName: string;
 	profileImageUrl: string;

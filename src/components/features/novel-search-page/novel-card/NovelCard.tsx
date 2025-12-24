@@ -38,6 +38,7 @@ export function NovelCard({
 			<CardContent
 				description={novel.description}
 				tags={novel.tags}
+				customTagNames={novel.customTagNames}
 				textCount={novel.textCount}
 				readingTime={novel.readingTime}
 				bookmarkCount={novel.bookmarkCount}
@@ -58,6 +59,7 @@ export function NovelCard({
 				onTagSearch={onTagSearch}
 				onAuthorSearch={onAuthorSearch}
 				highlightTags={highlightTags}
+				customTagNames={novel.customTagNames}
 			/>
 		</Card>
 	);

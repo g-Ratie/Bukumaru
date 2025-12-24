@@ -104,6 +104,9 @@ export function NovelSearchPageContent() {
 			return {
 				...prev,
 				tags: newTags,
+				excludeTags: prev.excludeTags.filter(
+					(excludeTag) => excludeTag !== tag,
+				),
 				currentPage: 1,
 			};
 		});

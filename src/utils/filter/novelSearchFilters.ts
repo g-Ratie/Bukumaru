@@ -5,6 +5,7 @@ export function filterNovels(novels: Novel[], filters: SearchFilters): Novel[] {
 	const filtered = novels.filter((novel) => {
 		const matchesAuthor = filterByAuthor(novel, filters.authorName);
 		const matchesTags = filterByTags(novel, filters.tags);
+		const matchesExcludeTags = filterByExcludedTags(novel, filters.excludeTags);
 		const matchesSelectedTag = filterBySelectedTag(novel, filters.selectedTag);
 		const matchesTextCount = filterByTextCount(
 			novel,
@@ -13,7 +14,11 @@ export function filterNovels(novels: Novel[], filters: SearchFilters): Novel[] {
 		);
 
 		return (
-			matchesAuthor && matchesTags && matchesSelectedTag && matchesTextCount
+			matchesAuthor &&
+			matchesTags &&
+			matchesExcludeTags &&
+			matchesSelectedTag &&
+			matchesTextCount
 		);
 	});
 
@@ -51,6 +56,18 @@ export function filterByTags(novel: Novel, tags: string[]): boolean {
 		novel.tags.some((novelTag) =>
 			novelTag.toLowerCase().includes(tag.toLowerCase()),
 		),
+	);
+}
+
+export function filterByExcludedTags(
+	novel: Novel,
+	excludeTags: string[],
+): boolean {
+	if (excludeTags.length === 0) return true;
+
+	const novelTags = novel.tags.map((tag) => tag.toLowerCase());
+	return !excludeTags.some((excludeTag) =>
+		novelTags.some((novelTag) => novelTag.includes(excludeTag.toLowerCase())),
 	);
 }
 

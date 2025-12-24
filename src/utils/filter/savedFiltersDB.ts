@@ -56,7 +56,14 @@ export async function getAllSavedFilters(): Promise<SavedFilter[]> {
 		request.onerror = () => reject(request.error);
 		request.onsuccess = () => {
 			const filters = request.result as SavedFilter[];
-			resolve(filters.sort((a, b) => b.createdAt - a.createdAt));
+			const normalized = filters.map((filter) => ({
+				...filter,
+				filterData: {
+					...filter.filterData,
+					excludeTags: filter.filterData.excludeTags ?? [],
+				},
+			}));
+			resolve(normalized.sort((a, b) => b.createdAt - a.createdAt));
 		};
 
 		transaction.oncomplete = () => db.close();

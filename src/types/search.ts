@@ -1,6 +1,7 @@
 export interface SearchFilters {
 	authorName: string;
 	tags: string[];
+	excludeTags: string[];
 	selectedTag: string;
 	minTextCount: number | null;
 	maxTextCount: number | null;
