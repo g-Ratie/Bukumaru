@@ -3,7 +3,6 @@
 import { Settings } from "lucide-react";
 import Link from "next/link";
 
-import { ThemeToggle } from "@/components/shared/theme-toggle/ThemeToggle";
 import { Button } from "@/components/ui/button";
 
 export function PageHeader() {
@@ -25,7 +24,15 @@ export function PageHeader() {
 							設定
 						</Button>
 					</Link>
-					<ThemeToggle />
+					<Link
+						href="https://www.pixiv.net/novel/bookmark_new.php"
+						rel="noopener noreferrer"
+						target="_blank"
+					>
+						<Button variant="outline" size="sm">
+							p
+						</Button>
+					</Link>
 				</div>
 			</div>
 		</header>
